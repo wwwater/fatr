@@ -1,26 +1,26 @@
 module TestUtils exposing (..)
 
-import ServerApi
+import ServerApi exposing (..)
 
-testPerson : ServerApi.Person
-testPerson = ServerApi.Person
+testPerson : Person
+testPerson = Person
     (Just "Max")
     (Just "Planck")
     (Nothing)
     (Just "1858-04-23")
     (Just "1947-10-4")
-    (ServerApi.Parents { mother = Nothing, father = Nothing })
+    (Parents { mother = Nothing, father = Nothing })
     []
 
-testParents : ServerApi.Parents
+testParents : Parents
 testParents =
-    (\m f -> ServerApi.Parents { mother = m, father = f })
+    (\m f -> Parents { mother = m, father = f })
     (Just testPerson)
     (Just testPerson)
 
 
-testPersonWithAncestors : ServerApi.Person
-testPersonWithAncestors = ServerApi.Person
+testPersonWithAncestors : Person
+testPersonWithAncestors = Person
     (Just "Max")
     (Just "Planck")
     Nothing
@@ -28,3 +28,19 @@ testPersonWithAncestors = ServerApi.Person
     (Just "1947-10-4")
     testParents
     []
+
+testChildren : Children
+testChildren =
+    (\s c -> Children { spouse = s, childrenWithSpouse = c })
+    (Just testPerson)
+    [testPerson, testPerson]
+
+testPersonWithDescendants : Person
+testPersonWithDescendants = Person
+    (Just "Max")
+    (Just "Planck")
+    Nothing
+    (Just "1858-04-23")
+    (Just "1947-10-4")
+    (Parents { mother = Nothing, father = Nothing })
+    [testChildren]

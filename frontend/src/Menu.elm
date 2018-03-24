@@ -19,6 +19,7 @@ type alias Model = {}
 
 type Msg
     = Ancestors Int
+    | Descendants Int
 
 init : Model
 init = Model
@@ -33,6 +34,9 @@ update action model =
     case action of
         Ancestors personId ->
             (model, Routes.navigate <| Routes.AncestorsPage personId)
+
+        Descendants personId ->
+            (model, Routes.navigate <| Routes.DescendantsPage personId)
 
 
 view : Html Msg

@@ -1,4 +1,4 @@
-module Ancestors        exposing ( Model
+module Descendants      exposing ( Model
                                  , Msg
                                  , init
                                  , view
@@ -28,7 +28,7 @@ type alias Model =
 
 
 type Msg
-    = HandleAncestorsRetrieved (Result Http.Error Person)
+    = HandleDescendantsRetrieved (Result Http.Error Person)
 
 
 init : Model
@@ -38,13 +38,13 @@ init =
 
 mountCmd : Int -> Cmd Msg
 mountCmd personId =
-    ServerApi.getAncestors personId HandleAncestorsRetrieved
+    ServerApi.getDescendants personId HandleDescendantsRetrieved
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update action model =
     case action of
-        HandleAncestorsRetrieved res ->
+        HandleDescendantsRetrieved res ->
             case res of
                 Result.Ok person ->
                     onlyUpdateModel { model | person = Just person }
@@ -53,19 +53,38 @@ update action model =
                     handleServerError { model | person = Nothing } err
 
 
+
+
+drawChildrenWithSpouse : Children -> Int -> Html Msg
+drawChildrenWithSpouse childrenWithSpouse depth =
+    let spouse = getSpouse childrenWithSpouse
+        children = getChildren childrenWithSpouse in
+            div [ personWithOthersStyle
+                , style [ ("justify-content", "end") ]
+                , class "children-with-spouse"
+                ]
+                [ div [ branchesStyle
+                      , style [ ("border-bottom", "1px dotted #333") ]
+                      ]
+                      (List.map (\c -> drawPerson (Just c) (depth - 1)) children)
+                , div [ spouseStyle ]
+                      [ drawBarePerson spouse ]
+                ]
+
+
 drawPerson : Maybe Person -> Int -> Html Msg
 drawPerson maybePerson depth =
     case maybePerson of
         Just person ->
             div [ personWithOthersStyle
-                , style [ ("justify-content", "start") ]
+                , style [ ("justify-content", "end") ]
                 , class "person"
                 ]
-                [ div [ personBoxStyle depth ]
+                [ div [ branchesStyle ]
+                      (List.map (\c -> drawChildrenWithSpouse c depth)
+                      <| List.reverse person.children)
+                , div [ personBoxStyle depth ]
                       [ drawBarePerson maybePerson ]
-                , div [ branchesStyle, style [ ("border-top", "1px dotted #333") ]]
-                      [ drawPerson (getMother person) (depth + 1)
-                      , drawPerson (getFather person) (depth + 1) ]
                 ]
         Nothing -> div [] []
 
@@ -74,5 +93,5 @@ view model =
     div [ treePageStyle ]
         [ case model.error of
             Just error -> h2 [ ] [ text error ]
-            Nothing -> drawPerson model.person 0
+            Nothing -> drawPerson model.person -1
         ]

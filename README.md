@@ -7,7 +7,7 @@
 ### To run locally:
 #### Backend
 
-`stack clean; stack build; stack exec cyclinginthewind`
+`stack clean; stack build; stack exec fatr`
 
 `stack test --coverage --ghc-options "-fforce-recomp"`
 

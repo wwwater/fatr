@@ -7,6 +7,7 @@ import Navigation
 
 import Tree
 import Ancestors
+import Descendants
 import Menu
 import Routes           exposing (..)
 
@@ -29,12 +30,14 @@ type alias Model =
     { route : Routes.Route
     , treeModel : Tree.Model
     , ancestorsModel : Ancestors.Model
+    , descendantsModel : Descendants.Model
     }
 
 
 type Msg
     = TreeMsg Tree.Msg
     | AncestorsMsg Ancestors.Msg
+    | DescendantsMsg Descendants.Msg
     | MenuMsg Menu.Msg
     | Navigate String
     | UrlChange Navigation.Location
@@ -45,6 +48,7 @@ initialModel =
     { route = TreePage
     , treeModel = Tree.init
     , ancestorsModel = Ancestors.init
+    , descendantsModel = Descendants.init
     }
 
 
@@ -63,6 +67,10 @@ update msg model =
         AncestorsMsg m ->
             let ( subMdl, subCmd ) = Ancestors.update m model.ancestorsModel
             in { model | ancestorsModel = subMdl } ! [ Cmd.map AncestorsMsg subCmd ]
+
+        DescendantsMsg m ->
+            let ( subMdl, subCmd ) = Descendants.update m model.descendantsModel
+            in { model | descendantsModel = subMdl } ! [ Cmd.map DescendantsMsg subCmd ]
 
         MenuMsg m ->
             let ( subMdl, subCmd ) = Menu.update m {}
@@ -90,6 +98,10 @@ urlUpdate loc model =
             { model | route = route, ancestorsModel = Ancestors.init }
                 ! [ Cmd.map AncestorsMsg <| Ancestors.mountCmd personId ]
 
+        Just ((DescendantsPage personId) as route) ->
+            { model | route = route, descendantsModel = Descendants.init }
+                ! [ Cmd.map DescendantsMsg <| Descendants.mountCmd personId ]
+
 
 view : Model -> Html Msg
 view model = div [ style [ ("display", "flex")
@@ -113,3 +125,5 @@ contentView model =
         AncestorsPage id ->
             Html.map AncestorsMsg <| Ancestors.view model.ancestorsModel
 
+        DescendantsPage id ->
+            Html.map DescendantsMsg <| Descendants.view model.descendantsModel

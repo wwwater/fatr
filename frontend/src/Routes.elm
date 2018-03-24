@@ -11,6 +11,7 @@ import Json.Decode as Json
 type Route
     = TreePage
     | AncestorsPage Int
+    | DescendantsPage Int
 
 
 routeParser : Parser (Route -> a) a
@@ -18,6 +19,7 @@ routeParser =
     UrlParser.oneOf
         [ UrlParser.map TreePage (s "")
         , UrlParser.map AncestorsPage (s "person" </> int </> s "ancestors")
+        , UrlParser.map DescendantsPage (s "person" </> int </> s "descendants")
         ]
 
 
@@ -37,6 +39,8 @@ encode route =
         AncestorsPage i ->
             "person/" ++ toString i ++ "/ancestors"
 
+        DescendantsPage i ->
+            "person/" ++ toString i ++ "/descendants"
 
 
 navigate : Route -> Cmd msg

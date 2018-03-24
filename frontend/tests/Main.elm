@@ -1,6 +1,7 @@
 port module Main exposing (..)
 
 import AncestorsTest
+import DescendantsTest
 import RoutesTest
 import MenuTest
 import Test             exposing (concat)
@@ -12,6 +13,7 @@ main : TestProgram
 main =
     run emit (Test.concat
         [ AncestorsTest.all
+        , DescendantsTest.all
         , RoutesTest.all
         , MenuTest.all
         ])

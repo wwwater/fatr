@@ -25,6 +25,25 @@ type Children = Children
     }
 
 
+getMother : Person -> Maybe Person
+getMother person =
+    let (Parents parents) = person.parents in parents.mother
+
+getFather : Person -> Maybe Person
+getFather person =
+    let (Parents parents) = person.parents in parents.father
+
+getSpouse : Children -> Maybe Person
+getSpouse (Children children) =
+    children.spouse
+
+getChildren : Children -> List Person
+getChildren (Children children) =
+    let comparePersons p1 p2 =
+        compare (Maybe.withDefault "" p1.birthday) (Maybe.withDefault "" p2.birthday) in
+    List.sortWith comparePersons <| children.childrenWithSpouse
+
+
 baseUrl : String
 baseUrl =
     "http://localhost:8081"
@@ -43,6 +62,19 @@ getAncestors personId msg =
         }
         |> Http.send msg
 
+getDescendants : Int -> (Result Http.Error Person -> msg) -> Cmd msg
+getDescendants personId msg =
+    Http.request
+        { method = "GET"
+        , url = baseUrl ++ "/person/" ++ toString personId ++ "/descendants"
+        , headers = []
+        , body = Http.emptyBody
+        , expect = Http.expectJson personDecoder
+        , timeout = Nothing
+        , withCredentials = False
+        }
+        |> Http.send msg
+
 personDecoder : JsonD.Decoder Person
 personDecoder =
     JsonD.map7 Person
@@ -52,7 +84,7 @@ personDecoder =
         (JsonD.field "birthday" (JsonD.maybe JsonD.string))
         (JsonD.field "deathday" (JsonD.maybe JsonD.string))
         (JsonD.field "parents" (JsonD.lazy (\_ -> parentsDecoder)))
-        (JsonD.field "children" (JsonD.list (JsonD.lazy (\_ -> childrenDecoder))))
+        (JsonD.field "children" (JsonD.lazy (\_ -> JsonD.list childrenDecoder)))
 
 parentsDecoder : JsonD.Decoder Parents
 parentsDecoder =
@@ -63,6 +95,6 @@ parentsDecoder =
 childrenDecoder : JsonD.Decoder Children
 childrenDecoder =
     JsonD.map2 (\s c -> Children {spouse = s, childrenWithSpouse = c})
-        (JsonD.field "spouse" (JsonD.maybe personDecoder))
-        (JsonD.field "childrenWithSpouse" (JsonD.list personDecoder))
+        (JsonD.field "spouse" (JsonD.lazy (\_ -> JsonD.maybe personDecoder)))
+        (JsonD.field "childrenWithSpouse" (JsonD.lazy (\_ -> JsonD.list personDecoder)))
 

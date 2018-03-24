@@ -27,12 +27,12 @@ data Parents = Parents
   , father :: Maybe Person
   } deriving (Generic)
 
-data ChildrenWithOneSpouse = ChildrenWithOneSpouse
+data ChildrenWithSpouse = ChildrenWithSpouse
   { spouse :: Maybe Person
   , childrenWithSpouse :: [Person]
   } deriving (Generic)
 
-newtype Children = Children [ChildrenWithOneSpouse]
+newtype Children = Children [ChildrenWithSpouse]
     deriving (Generic)
 
 data Person = Person
@@ -53,12 +53,12 @@ data ParentsDB = ParentsDB
   , fatherId :: Maybe Int
   } deriving (Generic)
 
-data ChildrenWithOneSpouseDB = ChildrenWithOneSpouseDB
+data ChildrenWithSpouseDB = ChildrenWithSpouseDB
   { spouseId :: Maybe Int
   , childrenIds :: [Int]
   } deriving (Generic)
 
-newtype ChildrenDB = ChildrenDB [ChildrenWithOneSpouseDB]
+newtype ChildrenDB = ChildrenDB [ChildrenWithSpouseDB]
     deriving (Generic)
 
 data PersonDB = PersonDB
@@ -88,15 +88,14 @@ instance FromField ChildrenDB where
       _ -> ChildrenDB []
   fromField f = returnError ConversionFailed f "cannot convert to Children"
 
-instance ToJSON PersonDB
 instance ToJSON ParentsDB
 instance FromJSON ParentsDB
 instance ToJSON ChildrenDB
 instance FromJSON ChildrenDB
-instance ToJSON ChildrenWithOneSpouseDB
-instance FromJSON ChildrenWithOneSpouseDB
+instance ToJSON ChildrenWithSpouseDB
+instance FromJSON ChildrenWithSpouseDB
 
 instance ToJSON Person
 instance ToJSON Parents
 instance ToJSON Children
-instance ToJSON ChildrenWithOneSpouse
+instance ToJSON ChildrenWithSpouse

@@ -74,3 +74,29 @@ spec = beforeAll testConnect $
            \\"surname\":\"Planck\"}"
           {matchStatus = 200}
 
+    it "retrieves person's descendants" $ \connection -> do
+      Storage.createSchema connection
+      Sql.execute_ connection "INSERT INTO person (id, givenName, surname, parents, children) VALUES \
+        \(1, 'Max', 'Planck', '', '')"
+      Sql.execute_ connection "INSERT INTO person (id, givenName, surname, parents, children) VALUES \
+        \(3, 'Johann', 'Planck', '', '[{\"spouseId\":2, \"childrenIds\":[1]}]')"
+      withApplication (App.app connection) $ do
+        get "/person/3/descendants" `shouldRespondWith`
+          "{\"givenName\":\"Johann\",\
+           \\"deathday\":null,\
+           \\"patronymic\":null,\
+           \\"children\":[{\"spouse\":null,\
+                          \\"childrenWithSpouse\":[\
+                                  \{\"givenName\":\"Max\",\
+                                   \\"deathday\":null,\
+                                   \\"patronymic\":null,\
+                                   \\"children\":[],\
+                                   \\"birthday\":null,\
+                                   \\"parents\":\
+                                    \{\"father\":null,\
+                                     \\"mother\":null},\
+                                   \\"surname\":\"Planck\"}]}],\
+           \\"birthday\":null,\
+           \\"parents\":{\"father\":null,\"mother\":null},\
+           \\"surname\":\"Planck\"}"
+          {matchStatus = 200}

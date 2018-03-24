@@ -1,0 +1,3 @@
+.person:last-of-type, .children-with-spouse:last-of-type {
+    margin-right: 0!important;
+}
