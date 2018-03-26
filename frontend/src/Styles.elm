@@ -11,6 +11,8 @@ treePageStyle : Attribute msg
 treePageStyle = style [
       ("background-color", "#aaa")
     , ("display", "flex")
+    , ("align-items", "start")
+    , ("justify-content", "center")
     , ("flex-grow", "1")
     , ("font-size", "12px")
     , ("font-weight", "bold")
@@ -53,10 +55,10 @@ personBareStyle = style [
 personBoxStyle : Int -> Attribute msg
 personBoxStyle depth = style [
       ("display", "flex")
-    , ("padding", "10px")
-    , ("margin", "10px")
+    , ("padding", "5px")
+    , ("margin", "10px 5px")
     , ("border", "1px solid #333")
-    , ("border-radius", "20px")
+    , ("border-radius", "15px")
     , ("background-color", getColor depth)
     , ("z-index", "2")
     , ("box-shadow", "2px 2px 5px 1px #333")
@@ -66,9 +68,9 @@ personBoxStyle depth = style [
 spouseStyle : Attribute msg
 spouseStyle = style [
       ("display", "flex")
-    , ("padding", "10px")
-    , ("margin", "10px 0 -20px 0")
-    , ("border-radius", "20px")
+    , ("padding", "5px")
+    , ("margin", "10px 0 -15px 0")
+    , ("border-radius", "15px")
     , ("background-color", "#555")
     , ("color", "#ddd")
     , ("z-index", "1")
@@ -81,7 +83,7 @@ branchesStyle = style [
       ("display", "flex")
     , ("flex-direction", "row")
     , ("justify-content", "center")
-    , ("border-radius", "20px")
+    , ("border-radius", "15px")
     ]
 
 
