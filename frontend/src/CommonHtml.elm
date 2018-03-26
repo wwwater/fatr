@@ -22,3 +22,9 @@ formatDates person =
     let birth = Maybe.withDefault "?" person.birthday
         death = Maybe.withDefault "" <| Maybe.map (\d -> " | " ++ d) person.deathday in
         birth ++ death
+
+
+getNameAndPatronymic : Person -> String
+getNameAndPatronymic person =
+    (Maybe.withDefault "?" person.givenName) ++ " " ++
+    (Maybe.withDefault "" person.patronymic)

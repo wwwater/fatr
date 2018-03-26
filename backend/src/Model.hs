@@ -36,7 +36,8 @@ newtype Children = Children [ChildrenWithSpouse]
     deriving (Generic)
 
 data Person = Person
-  { givenName :: Maybe String
+  { id :: Int
+  , givenName :: Maybe String
   , surname :: Maybe String
   , patronymic :: Maybe String
   , birthday :: Maybe String
@@ -62,7 +63,8 @@ newtype ChildrenDB = ChildrenDB [ChildrenWithSpouseDB]
     deriving (Generic)
 
 data PersonDB = PersonDB
-  { givenNameDB :: Maybe String
+  { idDB :: Int
+  , givenNameDB :: Maybe String
   , surnameDB :: Maybe String
   , patronymicDB :: Maybe String
   , birthdayDB :: Maybe String
@@ -72,7 +74,7 @@ data PersonDB = PersonDB
   } deriving (Generic)
 
 instance FromRow PersonDB where
-  fromRow = PersonDB <$> field <*> field <*> field <*> field <*> field <*> field <*> field
+  fromRow = PersonDB <$> field <*> field <*> field <*> field <*> field <*> field <*> field <*> field
 
 instance FromField ParentsDB where
   fromField (Field (SQLText str) _) = Ok $

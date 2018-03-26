@@ -37,10 +37,10 @@ encode route =
             "/"
 
         AncestorsPage i ->
-            "person/" ++ toString i ++ "/ancestors"
+            "/person/" ++ toString i ++ "/ancestors"
 
         DescendantsPage i ->
-            "person/" ++ toString i ++ "/descendants"
+            "/person/" ++ toString i ++ "/descendants"
 
 
 navigate : Route -> Cmd msg

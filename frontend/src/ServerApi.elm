@@ -5,7 +5,8 @@ import Json.Encode as JsonE
 import Http
 
 type alias Person =
-    { givenName : Maybe String
+    { id : Int
+    , givenName : Maybe String
     , surname : Maybe String
     , patronymic : Maybe String
     , birthday : Maybe String
@@ -77,7 +78,8 @@ getDescendants personId msg =
 
 personDecoder : JsonD.Decoder Person
 personDecoder =
-    JsonD.map7 Person
+    JsonD.map8 Person
+        (JsonD.field "id" JsonD.int)
         (JsonD.field "givenName" (JsonD.maybe JsonD.string))
         (JsonD.field "surname" (JsonD.maybe JsonD.string))
         (JsonD.field "patronymic" (JsonD.maybe JsonD.string))

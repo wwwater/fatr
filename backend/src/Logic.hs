@@ -71,6 +71,7 @@ getDescendants conn personId = do
 toPerson :: PersonDB -> Person
 toPerson personDB =
     Person {
+             Model.id = idDB personDB,
              givenName = givenNameDB personDB,
              surname = surnameDB personDB,
              patronymic = patronymicDB personDB,

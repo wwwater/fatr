@@ -28,7 +28,7 @@ createSchema conn = do
 
 selectPersonById :: Connection -> Int -> IO (Maybe M.PersonDB)
 selectPersonById conn personId = do
-  result <- (query conn "SELECT givenName, surname, patronymic, birthday, deathday, parents, children FROM person WHERE id = ?"
+  result <- (query conn "SELECT id, givenName, surname, patronymic, birthday, deathday, parents, children FROM person WHERE id = ?"
             (Only personId) :: IO [M.PersonDB])
   case (length result) of
       0 -> return Nothing

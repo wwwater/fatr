@@ -11,11 +11,19 @@ treePageStyle : Attribute msg
 treePageStyle = style [
       ("background-color", "#aaa")
     , ("display", "flex")
-    , ("justify-content", "center")
     , ("flex-grow", "1")
     , ("font-size", "12px")
     , ("font-weight", "bold")
     , ("padding-bottom", "20px")
+    ]
+
+treePageContentStyle : Attribute msg
+treePageContentStyle = style [
+      ("display", "flex")
+    , ("flex-direction", "column")
+    , ("justify-content", "flex-start")
+    , ("align-items", "center")
+    , ("flex-grow", "1")
     ]
 
 
@@ -52,6 +60,7 @@ personBoxStyle depth = style [
     , ("background-color", getColor depth)
     , ("z-index", "2")
     , ("box-shadow", "2px 2px 5px 1px #333")
+    , ("cursor", "pointer")
     ]
 
 spouseStyle : Attribute msg
@@ -64,6 +73,7 @@ spouseStyle = style [
     , ("color", "#ddd")
     , ("z-index", "1")
     , ("box-shadow", "2px 2px 5px 1px #333")
+    , ("cursor", "pointer")
     ]
 
 branchesStyle : Attribute msg

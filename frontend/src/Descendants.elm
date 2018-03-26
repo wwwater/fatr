@@ -7,7 +7,7 @@ module Descendants      exposing ( Model
                                  )
 
 import Html             exposing (..)
-import Html.Attributes  exposing ( style, class )
+import Html.Attributes  exposing ( style, class, title )
 import Html.Events      exposing ( onClick )
 import Http
 
@@ -29,6 +29,7 @@ type alias Model =
 
 type Msg
     = HandleDescendantsRetrieved (Result Http.Error Person)
+    | GoToAncestors Int
 
 
 init : Model
@@ -51,7 +52,7 @@ update action model =
 
                 Result.Err err ->
                     handleServerError { model | person = Nothing } err
-
+        GoToAncestors id -> ( model, Routes.navigate (Routes.AncestorsPage id) )
 
 
 
@@ -67,7 +68,9 @@ drawChildrenWithSpouse childrenWithSpouse depth =
                       , style [ ("border-bottom", "1px dotted #333") ]
                       ]
                       (List.map (\c -> drawPerson (Just c) (depth - 1)) children)
-                , div [ spouseStyle ]
+                , div [ spouseStyle
+                      , onClick (GoToAncestors <| Maybe.withDefault 0 <| Maybe.map .id spouse)
+                      , title "Построить древо предков" ]
                       [ drawBarePerson spouse ]
                 ]
 
@@ -83,7 +86,9 @@ drawPerson maybePerson depth =
                 [ div [ branchesStyle ]
                       (List.map (\c -> drawChildrenWithSpouse c depth)
                       <| List.reverse person.children)
-                , div [ personBoxStyle depth ]
+                , div [ personBoxStyle depth
+                      , onClick (GoToAncestors person.id)
+                      , title "Построить древо предков" ]
                       [ drawBarePerson maybePerson ]
                 ]
         Nothing -> div [] []
@@ -93,5 +98,17 @@ view model =
     div [ treePageStyle ]
         [ case model.error of
             Just error -> h2 [ ] [ text error ]
-            Nothing -> drawPerson model.person -1
+            Nothing ->
+                case model.person of
+                    Just person ->
+                        div [ treePageContentStyle ] [
+                            h2 [ style [ ("display", "flex")
+                                       , ("margin-bottom", "20px")
+                                       ] ]
+                               [ text <| (getNameAndPatronymic person) ++ " и Их древо потомков" ]
+                            , drawPerson model.person -1
+                            ]
+                    Nothing -> div [] []
         ]
+
+

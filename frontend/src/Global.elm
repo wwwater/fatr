@@ -10,18 +10,18 @@ getError err =
     case err of
         Http.BadStatus badStatus ->
             (case badStatus.status.code of
-                404 -> "Person not found!"
+                404 -> "Человека с таким номером нет в базе данных!"
                 401 -> badStatus.body
                 _ -> badStatus.status.message
             , Just badStatus.status.code)
         Http.BadUrl text ->
-            ("Bad url " ++ text, Nothing)
+            ("Неправильный запрос: " ++ text, Nothing)
         Http.Timeout ->
-            ("Timeout", Nothing)
+            ("Таймаут. Попробуйте перезагрузить страницу.", Nothing)
         Http.BadPayload message _ ->
-            ("Bad payload " ++ message, Nothing)
+            ("Неправильный запрос: " ++ message, Nothing)
         Http.NetworkError ->
-            ("Network error", Nothing)
+            ("У Вас отключили интернет (шутка)", Nothing)
 
 handleServerError : { m | error: Maybe String } -> Http.Error ->
     ( { m | error : Maybe String }, Cmd b )

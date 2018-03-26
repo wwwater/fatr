@@ -19,20 +19,20 @@ all =
                 \() ->
                     Ancestors.view (testModel Nothing)
                     |> Query.fromHtml
-                    |> Query.findAll [ tag "div" ]
-                    |> Query.count (Expect.equal 1)
+                    |> Query.findAll [ class "person" ]
+                    |> Query.count (Expect.equal 0)
             , test "person without ancestors displayed" <|
                 \() ->
                     Ancestors.view (testModel <| Just testPerson)
                     |> Query.fromHtml
-                    |> Query.findAll [ tag "div" ]
-                    |> Query.count (Expect.equal (7 + 2))
+                    |> Query.findAll [ class "person" ]
+                    |> Query.count (Expect.equal 1)
             , test "ancestors tree displayed" <|
                 \() ->
                     Ancestors.view (testModel <| Just testPersonWithAncestors)
                     |> Query.fromHtml
-                    |> Query.findAll [ tag "div" ]
-                    |> Query.count (Expect.equal (7 + (7 + 2) + (7 + 2)))
+                    |> Query.findAll [ class "person" ]
+                    |> Query.count (Expect.equal 3)
             ]
         ]
 

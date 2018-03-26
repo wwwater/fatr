@@ -4,6 +4,7 @@ import ServerApi exposing (..)
 
 testPerson : Person
 testPerson = Person
+    1
     (Just "Max")
     (Just "Planck")
     (Nothing)
@@ -21,6 +22,7 @@ testParents =
 
 testPersonWithAncestors : Person
 testPersonWithAncestors = Person
+    1
     (Just "Max")
     (Just "Planck")
     Nothing
@@ -37,6 +39,7 @@ testChildren =
 
 testPersonWithDescendants : Person
 testPersonWithDescendants = Person
+    1
     (Just "Max")
     (Just "Planck")
     Nothing

@@ -46,6 +46,7 @@ spec = beforeAll testConnect $
            \\"children\":[],\
            \\"birthday\":null,\
            \\"parents\":{\"father\":null,\"mother\":null},\
+           \\"id\":1,\
            \\"surname\":\"Planck\"}"
           {matchStatus = 200}
 
@@ -69,8 +70,10 @@ spec = beforeAll testConnect $
                          \\"children\":[],\
                          \\"birthday\":null,\
                          \\"parents\":{\"father\":null,\"mother\":null},\
+                         \\"id\":3,\
                          \\"surname\":\"Planck\"},\
              \\"mother\":null},\
+           \\"id\":1,\
            \\"surname\":\"Planck\"}"
           {matchStatus = 200}
 
@@ -95,8 +98,10 @@ spec = beforeAll testConnect $
                                    \\"parents\":\
                                     \{\"father\":null,\
                                      \\"mother\":null},\
+                                   \\"id\":1,\
                                    \\"surname\":\"Planck\"}]}],\
            \\"birthday\":null,\
            \\"parents\":{\"father\":null,\"mother\":null},\
+           \\"id\":3,\
            \\"surname\":\"Planck\"}"
           {matchStatus = 200}
