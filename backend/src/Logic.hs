@@ -13,6 +13,11 @@ getPersonById conn personId = do
     maybePersonDB <- S.selectPersonById conn personId
     return $ fmap toPerson maybePersonDB
 
+search :: Connection -> String -> IO [Person]
+search conn searchString = do
+    persons <- S.search conn searchString
+    return $ fmap toPerson persons
+
 getAncestors :: Connection -> Int -> IO (Maybe Person)
 getAncestors conn personId = do
     maybePersonDB <- S.selectPersonById conn personId

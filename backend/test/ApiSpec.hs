@@ -105,3 +105,19 @@ spec = beforeAll testConnect $
            \\"id\":3,\
            \\"surname\":\"Planck\"}"
           {matchStatus = 200}
+
+    it "searches person" $ \connection -> do
+      Storage.createSchema connection
+      Sql.execute_ connection "INSERT INTO person (givenName, surname, parents, children) VALUES \
+        \('Max', 'Planck', '{\"motherId\":2,\"fatherId\":3}', '[]')"
+      withApplication (App.app connection) $ do
+        get "/person/search/pla" `shouldRespondWith`
+          "[{\"givenName\":\"Max\",\
+           \\"deathday\":null,\
+           \\"patronymic\":null,\
+           \\"children\":[],\
+           \\"birthday\":null,\
+           \\"parents\":{\"father\":null,\"mother\":null},\
+           \\"id\":1,\
+           \\"surname\":\"Planck\"}]"
+          {matchStatus = 200}

@@ -24,14 +24,16 @@ import qualified Logic as L
 
 type PersonAPI =
        Capture "personId" Int :> Get '[JSON] M.Person
+  :<|> "search" :> Capture "searchString" String :> Get '[JSON] [M.Person]
   :<|> Capture "personId" Int :> "ancestors" :> Get '[JSON] M.Person
   :<|> Capture "personId" Int :> "descendants" :> Get '[JSON] M.Person
 
 personServer :: Connection ->  Server PersonAPI
 personServer conn =
-    getPerson :<|> getAncestors :<|> getDescendants
+    getPerson :<|> search :<|> getAncestors :<|> getDescendants
     where
       getPerson personId = liftIOMaybeToHandler err404 $ L.getPersonById conn personId
+      search searchString = liftIO $ L.search conn searchString
       getAncestors personId = liftIOMaybeToHandler err404 $ L.getAncestors conn personId
       getDescendants personId = liftIOMaybeToHandler err404 $ L.getDescendants conn personId
 

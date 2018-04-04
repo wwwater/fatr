@@ -85,7 +85,7 @@ view model =
                             [ h2 [ style [ ("display", "flex")
                                          , ("margin-bottom", "20px")
                                          ] ]
-                                 [ text <| (getNameAndPatronymic person) ++ " и Их древо предков" ]
+                                 [ text <| (getNameAndPatronymic person) ++ " и предки" ]
                             , drawPerson model.person 0
                             ]
                     Nothing -> div [] []

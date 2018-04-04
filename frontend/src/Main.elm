@@ -31,6 +31,7 @@ type alias Model =
     , treeModel : Tree.Model
     , ancestorsModel : Ancestors.Model
     , descendantsModel : Descendants.Model
+    , menuModel : Menu.Model
     }
 
 
@@ -49,11 +50,15 @@ initialModel =
     , treeModel = Tree.init
     , ancestorsModel = Ancestors.init
     , descendantsModel = Descendants.init
+    , menuModel = Menu.init
     }
 
 
 init : Navigation.Location -> ( Model, Cmd Msg )
-init loc = update (UrlChange loc) <| initialModel
+init loc =
+    let ( subMdl, subCmd ) = update (UrlChange loc) <| initialModel
+    in subMdl ! [ Cmd.map MenuMsg Menu.mountCmd, subCmd ]
+
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -73,8 +78,8 @@ update msg model =
             in { model | descendantsModel = subMdl } ! [ Cmd.map DescendantsMsg subCmd ]
 
         MenuMsg m ->
-            let ( subMdl, subCmd ) = Menu.update m {}
-            in model ! [ Cmd.map MenuMsg subCmd ]
+            let ( subMdl, subCmd ) = Menu.update m model.menuModel
+            in { model | menuModel = subMdl } ! [ Cmd.map MenuMsg subCmd ]
 
         UrlChange loc ->
             urlUpdate loc model
@@ -110,7 +115,7 @@ view model = div [ style [ ("display", "flex")
                          , ("min-width", "100vw")
                          , ("float", "left")
                          ] ]
-    [ Html.map MenuMsg <| Menu.view
+    [ Html.map MenuMsg <| Menu.view model.menuModel
     , contentView model
     ]
 

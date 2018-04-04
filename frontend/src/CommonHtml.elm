@@ -28,3 +28,9 @@ getNameAndPatronymic : Person -> String
 getNameAndPatronymic person =
     (Maybe.withDefault "?" person.givenName) ++ " " ++
     (Maybe.withDefault "" person.patronymic)
+
+displayAsSearchEntry : Person -> String
+displayAsSearchEntry person =
+    (Maybe.withDefault "?" person.surname) ++ " " ++
+    (Maybe.withDefault "" person.givenName) ++ " " ++
+    (Maybe.withDefault "" <| Maybe.map (\b -> String.left 4 b) person.birthday)
