@@ -50,20 +50,6 @@ baseUrl =
     "http://localhost:8081"
 
 
-getAll : (Result Http.Error (List Person) -> msg) -> Cmd msg
-getAll msg =
-    Http.request
-        { method = "GET"
-        , url = baseUrl ++ "/person/all"
-        , headers = []
-        , body = Http.emptyBody
-        , expect = Http.expectJson (JsonD.list personDecoder)
-        , timeout = Nothing
-        , withCredentials = False
-        }
-        |> Http.send msg
-
-
 searchPersons : String -> (Result Http.Error (List Person) -> msg) -> Cmd msg
 searchPersons searchString msg =
     Http.request
