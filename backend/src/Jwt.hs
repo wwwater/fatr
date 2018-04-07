@@ -35,7 +35,7 @@ verifyJwt key jwt =
         Just expiredTime -> do
           now <- getPOSIXTime
           let expire = secondsSinceEpoch expiredTime
-            in if now > expire then return False else return True
+            in return $ now < expire
         Nothing -> return False
     Nothing -> return False
 
