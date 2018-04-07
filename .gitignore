@@ -8,6 +8,7 @@ backend/dist
 backend/*.tix
 backend/db/*.sql
 *.swp
+*.swo
 *.log
 *.db
 *.gz

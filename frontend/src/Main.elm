@@ -5,20 +5,24 @@ import Html.Attributes  exposing (..)
 import Html
 import Navigation
 
-import Tree
+
 import Ancestors
 import Descendants
+import Login
 import Menu
 import Routes           exposing (..)
+import Global           exposing (Msg(..))
+import ServerApi        exposing (Jwt)
 
 port save : String -> Cmd msg
 port remove : () -> Cmd msg
 
 
+type alias Flags = { jwt : String }
 
-main : Program Never Model Msg
+main : Program Flags Model Msg
 main =
-    Navigation.program UrlChange
+    Navigation.programWithFlags UrlChange
         { init = init
         , view = view
         , update = update
@@ -27,36 +31,41 @@ main =
 
 
 type alias Model =
-    { route : Routes.Route
-    , treeModel : Tree.Model
-    , ancestorsModel : Ancestors.Model
+    { ancestorsModel : Ancestors.Model
     , descendantsModel : Descendants.Model
+    , jwt : Maybe Jwt
+    , loginModel: Login.Model
     , menuModel : Menu.Model
+    , route : Routes.Route
+    , previousRoute : Maybe Routes.Route
     }
 
 
 type Msg
-    = TreeMsg Tree.Msg
-    | AncestorsMsg Ancestors.Msg
+    = AncestorsMsg Ancestors.Msg
     | DescendantsMsg Descendants.Msg
+    | GlobalMsg Global.Msg
+    | LoginMsg Login.Msg
     | MenuMsg Menu.Msg
     | Navigate String
     | UrlChange Navigation.Location
 
-
-initialModel : Model
-initialModel =
-    { route = TreePage
-    , treeModel = Tree.init
+initialModel : Flags -> Model
+initialModel flags =
+    { route = LoginPage
+    , previousRoute = Nothing
     , ancestorsModel = Ancestors.init
     , descendantsModel = Descendants.init
     , menuModel = Menu.init
+    , loginModel = Login.init
+    , jwt = if flags.jwt /= "" then Just flags.jwt else Nothing
     }
 
 
-init : Navigation.Location -> ( Model, Cmd Msg )
-init loc =
-    let ( subMdl, subCmd ) = update (UrlChange loc) <| initialModel
+
+init : Flags -> Navigation.Location -> ( Model, Cmd Msg )
+init flags loc =
+    let ( subMdl, subCmd ) = update (UrlChange loc) <| initialModel flags
     in subMdl ! [ Cmd.map MenuMsg Menu.mountCmd, subCmd ]
 
 
@@ -64,10 +73,6 @@ init loc =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-
-        TreeMsg m ->
-            let ( subMdl, subCmd ) = Tree.update m model.treeModel
-            in { model | treeModel = subMdl } ! [ Cmd.map TreeMsg subCmd ]
 
         AncestorsMsg m ->
             let ( subMdl, subCmd ) = Ancestors.update m model.ancestorsModel
@@ -77,58 +82,92 @@ update msg model =
             let ( subMdl, subCmd ) = Descendants.update m model.descendantsModel
             in { model | descendantsModel = subMdl } ! [ Cmd.map DescendantsMsg subCmd ]
 
+        GlobalMsg m ->
+            case m of
+                None -> model ! []
+                SaveJwt jwt -> { model | jwt = Just jwt } ! [ save jwt ]
+                RemoveJwt -> { model | jwt = Nothing } ! [ remove () ]
+
+        LoginMsg m ->
+            let
+                ( subMdl, subCmd, globalMsg ) =
+                    Login.update m model.loginModel (model.previousRoute == Just LoginPage)
+                ( mdl, cmd ) = update (GlobalMsg globalMsg) { model | loginModel = subMdl }
+            in mdl ! [ Cmd.map LoginMsg subCmd, cmd ]
+
         MenuMsg m ->
-            let ( subMdl, subCmd ) = Menu.update m model.menuModel
-            in { model | menuModel = subMdl } ! [ Cmd.map MenuMsg subCmd ]
+            case model.jwt of
+                Just jwt ->
+                    let ( subMdl, subCmd ) = Menu.update m model.menuModel jwt
+                    in { model | menuModel = subMdl } ! [ Cmd.map MenuMsg subCmd ]
+                Nothing -> ( model, Cmd.none )
+
+        Navigate url ->
+            model ! [ Navigation.newUrl url ]
 
         UrlChange loc ->
             urlUpdate loc model
 
-        Navigate url ->
-            model ! [ Navigation.newUrl url ]
 
 
 
 urlUpdate : Navigation.Location -> Model -> ( Model, Cmd Msg )
 urlUpdate loc model =
+    let previousRoute = Just model.route in
     case (Routes.decode loc) of
         Nothing  ->
             model ! [ Navigation.modifyUrl (Routes.encode model.route) ]
 
-        Just (TreePage as route) ->
-            { model | route = route, treeModel = Tree.init }
-                ! [ Cmd.map TreeMsg <| Tree.mountCmd ]
-
         Just ((AncestorsPage personId) as route) ->
-            { model | route = route, ancestorsModel = Ancestors.init }
-                ! [ Cmd.map AncestorsMsg <| Ancestors.mountCmd personId ]
+            case model.jwt of
+                Just jwt ->
+                    { model | previousRoute = previousRoute
+                            , route = route
+                            , ancestorsModel = Ancestors.init }
+                        ! [ Cmd.map AncestorsMsg <| Ancestors.mountCmd personId jwt ]
+                Nothing -> ( model, Cmd.none )
 
         Just ((DescendantsPage personId) as route) ->
-            { model | route = route, descendantsModel = Descendants.init }
-                ! [ Cmd.map DescendantsMsg <| Descendants.mountCmd personId ]
+            case model.jwt of
+                Just jwt ->
+                    { model | previousRoute = previousRoute
+                            , route = route
+                            , descendantsModel = Descendants.init }
+                        ! [ Cmd.map DescendantsMsg <| Descendants.mountCmd personId jwt ]
+                Nothing -> ( model, Cmd.none )
+
+        Just (LoginPage as route) ->
+            { model | previousRoute = previousRoute
+                    , route = route }
+                ! [ Cmd.map LoginMsg Login.mountCmd ]
 
 
 view : Model -> Html Msg
-view model = div [ style [ ("display", "flex")
+view model =
+    let showMenu = model.route /= LoginPage in
+    div [ style [ ("display", "flex")
                          , ("flex-direction", "column")
                          , ("min-height", "100vh")
                          , ("min-width", "100vw")
                          , ("float", "left")
                          ] ]
-    [ Html.map MenuMsg <| Menu.view model.menuModel
-    , contentView model
-    ]
+        [ if showMenu
+          then Html.map MenuMsg <| Menu.view model.menuModel
+          else div [] []
+        , contentView model
+        ]
 
 
 
 contentView : Model -> Html Msg
 contentView model =
     case model.route of
-        TreePage ->
-            Html.map TreeMsg <| Tree.view model.treeModel
 
         AncestorsPage id ->
             Html.map AncestorsMsg <| Ancestors.view model.ancestorsModel
 
         DescendantsPage id ->
             Html.map DescendantsMsg <| Descendants.view model.descendantsModel
+
+        LoginPage ->
+            Html.map LoginMsg <| Login.view model.loginModel

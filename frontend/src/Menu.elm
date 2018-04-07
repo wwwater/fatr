@@ -6,7 +6,6 @@ module Menu             exposing ( Model
                                  , mountCmd
                                  )
 
-import Json.Decode      as Json
 
 import Html             exposing (..)
 import Html.Attributes  exposing ( style
@@ -60,14 +59,14 @@ mountCmd : Cmd Msg
 mountCmd = Cmd.none
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
-update action model =
+update : Msg -> Model -> Jwt -> ( Model, Cmd Msg )
+update action model jwt =
     case action of
         HandleListRetrieved res ->
             case res of
                 Result.Ok persons ->
                     let newModel = { model | persons = persons } in
-                        update (ToggleSearchOptions True) newModel
+                        update (ToggleSearchOptions True) newModel jwt
                 Result.Err err ->
                     handleServerError { model | persons = [] } err
 
@@ -84,14 +83,14 @@ update action model =
                 let nextId = min (List.length model.persons) (model.focusOnOption + 1)
                     newModel = { model | focusOnOption = nextId }
                     msg = FocusOn  ("search-option-" ++ toString nextId)
-                in update msg newModel
+                in update msg newModel jwt
             else
-                update (ToggleSearchOptions True) model
+                update (ToggleSearchOptions True) model jwt
         FocusPreviousOption ->
             let previousId = max 0 (model.focusOnOption - 1)
                 newModel = { model | focusOnOption = previousId }
                 msg = FocusOn  ("search-option-" ++ toString previousId)
-            in update msg newModel
+            in update msg newModel jwt
 
         None -> onlyUpdateModel model
 
@@ -108,19 +107,15 @@ update action model =
 
         GoToAncestors id ->
             let ( mdl, cmd ) =
-                update (ToggleSearchOptions False) { model | searchText = "" } in
+                update (ToggleSearchOptions False) { model | searchText = "" } jwt in
                 ( mdl, Routes.navigate (Routes.AncestorsPage id) )
 
         Search s ->
             if String.length s > 0
-            then ( { model | searchText = s }, ServerApi.searchPersons s HandleListRetrieved )
-            else update (ToggleSearchOptions False) { model | persons = [], searchText = s }
+            then ( { model | searchText = s }, ServerApi.searchPersons s jwt HandleListRetrieved )
+            else update (ToggleSearchOptions False) { model | persons = [], searchText = s } jwt
 
 
-
-onKeyUp : (Int -> msg) -> Attribute msg
-onKeyUp tagger =
-  on "keyup" (Json.map tagger keyCode)
 
 
 drawSearchOption : Int -> Person -> Int -> Html Msg

@@ -1,6 +1,9 @@
 module CommonHtml   exposing (..)
 
 import Html         exposing (..)
+import Html.Events  exposing ( on, keyCode )
+
+import Json.Decode  as Json
 
 import Styles       exposing (..)
 import ServerApi    exposing ( Person )
@@ -34,3 +37,8 @@ displayAsSearchEntry person =
     (Maybe.withDefault "?" person.surname) ++ " " ++
     (Maybe.withDefault "" person.givenName) ++ " " ++
     (Maybe.withDefault "" <| Maybe.map (\b -> String.left 4 b) person.birthday)
+
+
+onKeyUp : (Int -> msg) -> Attribute msg
+onKeyUp tagger =
+  on "keyup" (Json.map tagger keyCode)

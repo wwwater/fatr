@@ -5,7 +5,7 @@ var Elm = require("./Main");
 
 var storageKey = "token";
 
-var elm = Elm.Main.fullscreen();
+var elm = Elm.Main.fullscreen({jwt: localStorage.getItem(storageKey) || ""});
 
 
 elm.ports.save.subscribe(function(value) {

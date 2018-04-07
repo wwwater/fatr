@@ -37,9 +37,9 @@ init =
     Model Nothing Nothing
 
 
-mountCmd : Int -> Cmd Msg
-mountCmd personId =
-    ServerApi.getAncestors personId HandleAncestorsRetrieved
+mountCmd : Int -> Jwt -> Cmd Msg
+mountCmd personId jwt =
+    ServerApi.getAncestors personId jwt HandleAncestorsRetrieved
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -75,7 +75,7 @@ drawPerson maybePerson depth =
 
 view : Model -> Html Msg
 view model =
-    div [ treePageStyle ]
+    div [ pageStyle ]
         [ case model.error of
             Just error -> h2 [ ] [ text error ]
             Nothing ->

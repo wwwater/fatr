@@ -17,6 +17,9 @@ all =
             , test "/person/{id}/descendants" <|
                 \() -> Routes.encode (Routes.DescendantsPage 1)
                 |> Expect.equal "/person/1/descendants"
+            , test "/login" <|
+                \() -> Routes.encode (Routes.LoginPage)
+                |> Expect.equal "/login"
             ]
 
         , describe "decoding routes"
@@ -26,6 +29,12 @@ all =
             , test "/person/{id}/descendants" <|
                 \() -> Routes.decode (Location "" "" "" "" "" "" "/person/1/descendants" "" "" "" "")
                 |> Expect.equal (Just (Routes.DescendantsPage 1))
+            , test "/login" <|
+                \() -> Routes.decode (Location "" "" "" "" "" "" "/login" "" "" "" "")
+                |> Expect.equal (Just (Routes.LoginPage))
+            , test "/" <|
+                \() -> Routes.decode (Location "" "" "" "" "" "" "/" "" "" "" "")
+                |> Expect.equal (Just (Routes.LoginPage))
             , test "/not-existing-path" <|
                 \() -> Routes.decode (Location "" "" "" "" "" "" "/not-exist" "" "" "" "")
                 |> Expect.equal Nothing

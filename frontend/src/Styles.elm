@@ -6,9 +6,16 @@ import Html.Attributes  exposing ( style )
 
 type alias RGB = (Int, Int, Int)
 
+formStyle : Attribute msg
+formStyle = style [
+      ("padding", "15px 20px")
+    , ("border-radius", "15px")
+    , ("border", "none")
+    , ("font-size", "14px")
+    ]
 
-treePageStyle : Attribute msg
-treePageStyle = style [
+pageStyle : Attribute msg
+pageStyle = style [
       ("background-color", "#aaa")
     , ("display", "flex")
     , ("align-items", "start")

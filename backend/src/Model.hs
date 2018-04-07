@@ -73,6 +73,19 @@ data PersonDB = PersonDB
   , childrenDB :: ChildrenDB
   } deriving (Generic)
 
+
+data Credentials = Credentials
+  { username :: String
+  , password :: String
+  } deriving (Generic)
+
+type JwtSecret = String
+type JwtToken = String
+
+data Jwt = Jwt
+  { token :: JwtToken
+  } deriving (Generic)
+
 instance FromRow PersonDB where
   fromRow = PersonDB <$> field <*> field <*> field <*> field <*> field <*> field <*> field <*> field
 
@@ -90,6 +103,10 @@ instance FromField ChildrenDB where
       _ -> ChildrenDB []
   fromField f = returnError ConversionFailed f "cannot convert to Children"
 
+
+instance FromRow Credentials where
+  fromRow = Credentials <$> field <*> field
+
 instance ToJSON ParentsDB
 instance FromJSON ParentsDB
 instance ToJSON ChildrenDB
@@ -101,3 +118,10 @@ instance ToJSON Person
 instance ToJSON Parents
 instance ToJSON Children
 instance ToJSON ChildrenWithSpouse
+
+
+instance FromJSON Credentials
+instance ToJSON Credentials
+instance FromJSON Jwt
+instance ToJSON Jwt
+

@@ -4,6 +4,14 @@ import Json.Decode as JsonD
 import Json.Encode as JsonE
 import Http
 
+
+type alias Credentials =
+    { username : String
+    , password : String
+    }
+
+type alias Jwt = String
+
 type alias Person =
     { id : Int
     , givenName : Maybe String
@@ -50,12 +58,20 @@ baseUrl =
     "http://localhost:8081"
 
 
-searchPersons : String -> (Result Http.Error (List Person) -> msg) -> Cmd msg
-searchPersons searchString msg =
+getJwt : Credentials -> (Result Http.Error Jwt -> msg) -> Cmd msg
+getJwt credentials msg =
+    Http.post (baseUrl ++ "/jwt")
+        (Http.stringBody "application/json" <| encodeCredentials credentials)
+        jwtDecoder
+        |> Http.send msg
+
+
+searchPersons : String -> Jwt -> (Result Http.Error (List Person) -> msg) -> Cmd msg
+searchPersons searchString jwt msg =
     Http.request
         { method = "GET"
         , url = baseUrl ++ "/person/search/" ++ searchString
-        , headers = []
+        , headers = [ Http.header "jwt" jwt ]
         , body = Http.emptyBody
         , expect = Http.expectJson (JsonD.list personDecoder)
         , timeout = Nothing
@@ -63,12 +79,12 @@ searchPersons searchString msg =
         }
         |> Http.send msg
 
-getAncestors : Int -> (Result Http.Error Person -> msg) -> Cmd msg
-getAncestors personId msg =
+getAncestors : Int -> Jwt -> (Result Http.Error Person -> msg) -> Cmd msg
+getAncestors personId jwt msg =
     Http.request
         { method = "GET"
         , url = baseUrl ++ "/person/" ++ toString personId ++ "/ancestors"
-        , headers = []
+        , headers = [ Http.header "jwt" jwt ]
         , body = Http.emptyBody
         , expect = Http.expectJson personDecoder
         , timeout = Nothing
@@ -76,18 +92,30 @@ getAncestors personId msg =
         }
         |> Http.send msg
 
-getDescendants : Int -> (Result Http.Error Person -> msg) -> Cmd msg
-getDescendants personId msg =
+getDescendants : Int -> Jwt -> (Result Http.Error Person -> msg) -> Cmd msg
+getDescendants personId jwt msg =
     Http.request
         { method = "GET"
         , url = baseUrl ++ "/person/" ++ toString personId ++ "/descendants"
-        , headers = []
+        , headers = [ Http.header "jwt" jwt ]
         , body = Http.emptyBody
         , expect = Http.expectJson personDecoder
         , timeout = Nothing
         , withCredentials = False
         }
         |> Http.send msg
+
+
+encodeCredentials : Credentials -> String
+encodeCredentials credentials =
+    JsonE.encode 0 <|
+        JsonE.object
+            [ ("username", JsonE.string credentials.username)
+            , ("password", JsonE.string credentials.password)
+            ]
+
+jwtDecoder : JsonD.Decoder Jwt
+jwtDecoder = JsonD.field "token" JsonD.string
 
 personDecoder : JsonD.Decoder Person
 personDecoder =

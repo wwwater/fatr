@@ -1,11 +1,44 @@
 
 module Logic where
 
+import Crypto.PasswordStore                 (verifyPassword)
+import Data.ByteString.Char8                (pack)
+import Data.Maybe                           (fromMaybe)
+import Data.Text                            (unpack)
 import Database.SQLite.Simple               (Connection)
+import System.Environment                   (lookupEnv)
 
 
+import Jwt                                  (createJwt, verifyJwt)
 import Model
 import qualified Storage as S
+
+
+defaultJwtSecret :: String
+defaultJwtSecret = "jwt-secret"
+
+
+issueJwt :: Connection -> Credentials -> IO (Maybe Jwt)
+issueJwt conn credentials =
+  let user = username credentials
+      passwordProvided = password credentials in do
+  maybePasswordHash <- S.getUserPassword conn user
+  case maybePasswordHash of
+    Just passwordHash ->
+      if verifyPassword (pack passwordProvided) (pack passwordHash)
+        then do
+          jwtSecret <- lookupEnv "JWT_SECRET"
+          let secret = fromMaybe defaultJwtSecret jwtSecret in
+            fmap (Just . Jwt . unpack) $ createJwt secret
+        else return Nothing
+    Nothing -> return Nothing
+
+verifyJwtToken :: JwtToken -> IO Bool
+verifyJwtToken jwtToken = do
+  jwtSecret <- lookupEnv "JWT_SECRET"
+  let secret = fromMaybe defaultJwtSecret jwtSecret
+  verifyJwt secret jwtToken
+
 
 
 getPersonById :: Connection -> Int -> IO (Maybe Person)

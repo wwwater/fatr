@@ -10,7 +10,10 @@ import Database.SQLite.Simple   (Connection,
                                 NamedParam (..)
                                 )
 import Data.Char                (toUpper)
+
+
 import qualified Model          as M
+
 
 
 createSchema :: Connection -> IO ()
@@ -24,7 +27,8 @@ createSchema conn = do
             \deathday VARCHAR2(31),\
             \parents VARCHAR2(255),\
             \children VARCHAR2(255))"
-
+  executeDB "CREATE TABLE IF NOT EXISTS user \
+            \(name VARCHAR2(255) PRIMARY KEY, password TEXT)"
   where
     executeDB = execute_ conn
 
@@ -56,4 +60,13 @@ search conn searchString = do
 capitalize :: String -> String
 capitalize [] = []
 capitalize (x:xs) = (toUpper x):xs
+
+
+getUserPassword :: Connection -> String -> IO (Maybe String)
+getUserPassword conn username = do
+  result <- (query conn "SELECT name, password FROM user WHERE name = ?"
+            (Only username) :: IO [M.Credentials])
+  case (length result) of
+      0 -> return Nothing
+      _ -> return $ Just $ M.password $ head result
 
