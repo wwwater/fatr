@@ -61,7 +61,7 @@ drawChildrenWithSpouse childrenWithSpouse depth =
     let spouse = getSpouse childrenWithSpouse
         children = getChildren childrenWithSpouse in
             div [ personWithOthersStyle
-                , style [ ("justify-content", "end") ]
+                , style [ ("justify-content", "flex-end") ]
                 , class "children-with-spouse"
                 ]
                 [ div [ branchesStyle
@@ -80,7 +80,7 @@ drawPerson maybePerson depth =
     case maybePerson of
         Just person ->
             div [ personWithOthersStyle
-                , style [ ("justify-content", "end") ]
+                , style [ ("justify-content", "flex-end") ]
                 , class "person"
                 ]
                 [ div [ branchesStyle ]

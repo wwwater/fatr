@@ -50,7 +50,7 @@ update action model cameFromLogin =
                     let _ = Debug.log "Received jwt" jwt in
                     ( { model | credentials = { username = "user", password = "" } }
                     , if cameFromLogin
-                      then Routes.navigate (Routes.AncestorsPage 999)
+                      then Routes.navigate (Routes.AncestorsPage 0)
                       else Navigation.back 1
                     , Global.SaveJwt jwt
                     )
@@ -108,7 +108,7 @@ view model =
                         , ("box-shadow", "inset 2px 2px 5px 0 #bbb")
                         , ("margin-bottom", "20px") ]
                 , formStyle
-                , type_ "text"
+                , type_ "password"
                 , value model.credentials.password
                 , placeholder "Остановка электрички, где у мамы дача"
                 , maxlength 100

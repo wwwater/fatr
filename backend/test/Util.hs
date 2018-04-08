@@ -25,7 +25,7 @@ import qualified Storage
 addTestUserToDB :: Sql.Connection -> IO()
 addTestUserToDB connection = do
   Storage.createSchema connection
-  hash <- makePassword "testPassword" 17
+  hash <- makePassword "testpassword" 17
   Sql.executeNamed connection "INSERT INTO user (name, password) VALUES ('test', :hash)"
     [":hash" Sql.:= decodeUtf8 hash]
 

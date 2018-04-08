@@ -146,11 +146,11 @@ view : Model -> Html Msg
 view model =
     let showMenu = model.route /= LoginPage in
     div [ style [ ("display", "flex")
-                         , ("flex-direction", "column")
-                         , ("min-height", "100vh")
-                         , ("min-width", "100vw")
-                         , ("float", "left")
-                         ] ]
+                , ("flex-direction", "column")
+                , ("min-height", "100vh")
+                , ("min-width", "100vw")
+                , ("position", "absolute")
+                ] ]
         [ if showMenu
           then Html.map MenuMsg <| Menu.view model.menuModel
           else div [] []

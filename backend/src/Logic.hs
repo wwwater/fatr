@@ -3,6 +3,7 @@ module Logic where
 
 import Crypto.PasswordStore                 (verifyPassword)
 import Data.ByteString.Char8                (pack)
+import Data.Char                            (toLower)
 import Data.Maybe                           (fromMaybe)
 import Data.Text                            (unpack)
 import Database.SQLite.Simple               (Connection)
@@ -21,7 +22,7 @@ defaultJwtSecret = "jwt-secret"
 issueJwt :: Connection -> Credentials -> IO (Maybe Jwt)
 issueJwt conn credentials =
   let user = username credentials
-      passwordProvided = password credentials in do
+      passwordProvided = map toLower $ password credentials in do
   maybePasswordHash <- S.getUserPassword conn user
   case maybePasswordHash of
     Just passwordHash ->
