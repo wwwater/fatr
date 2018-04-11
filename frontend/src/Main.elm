@@ -150,6 +150,9 @@ view model =
                 , ("min-height", "100vh")
                 , ("min-width", "100vw")
                 , ("position", "absolute")
+                , ("align-items", "center")
+                , ("width", if showMenu then "1000px" else "auto")
+                , ("overflow", "scroll")
                 ] ]
         [ if showMenu
           then Html.map MenuMsg <| Menu.view model.menuModel

@@ -180,6 +180,7 @@ view : Model -> Html Msg
 view model = div [ style [ ("background-color", "#777")
                          , ("display", "flex")
                          , ("justify-content", "center")
+                         , ("border-radius", "10px")
                          , ("padding", "20px") ] ]
                  [ drawSearchInput model.searchText
                  , if model.showSearchOptions
