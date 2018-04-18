@@ -16,24 +16,17 @@ all =
         [ describe "testing HTML"
             [ test "menu has input" <|
                 \() ->
-                    Menu.view (Menu.Model [testPerson] False "" 0 Nothing)
+                    Menu.view Menu.init
                     |> Query.fromHtml
                     |> Query.findAll [ id "search-option-0" ]
                     |> Query.count (Expect.equal 1)
             , test "menu has no options dropdown" <|
                 \() ->
-                    Menu.view (Menu.Model [testPerson] False "" 0 Nothing)
+                    Menu.view Menu.init
                     |> Query.fromHtml
                     |> Query.findAll [ id "search-option-1" ]
                     |> Query.count (Expect.equal 0)
-            , test "menu has an option in dropdown" <|
-                \() ->
-                    Menu.view (Menu.Model [testPerson] True "" 0 Nothing)
-                    |> Query.fromHtml
-                    |> Query.findAll [ id "search-option-1" ]
-                    |> Query.count (Expect.equal 1)
             ]
         ]
 
-testModel : Menu.Model
-testModel = Menu.Model [testPerson] False "" 0 Nothing
+

@@ -16,8 +16,8 @@ all =
                 \() ->
                     Login.view testLoginModel
                     |> Query.fromHtml
-                    |> Query.find [ attribute "type" "text" ]
-                    |> Query.has [ attribute "value" "password" ]
+                    |> Query.find [ attribute "type" "password" ]
+                    |> Query.has [ attribute "value" "pass" ]
             , test "has submit button" <|
                 \() ->
                     Login.view testLoginModel
@@ -29,4 +29,4 @@ all =
 
 testLoginModel : Login.Model
 testLoginModel = Login.Model
-    (ServerApi.Credentials "user" "pass")
+    (ServerApi.Credentials "user" "pass") Nothing
