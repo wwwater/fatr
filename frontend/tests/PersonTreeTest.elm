@@ -1,4 +1,4 @@
-module AncestorsTest exposing (..)
+module PersonTreeTest exposing (..)
 
 import Test                 exposing (..)
 import Fuzz                 exposing (string)
@@ -6,35 +6,35 @@ import Test.Html.Query      as Query
 import Test.Html.Selector   exposing (text, tag, class)
 import Expect
 
-import Ancestors
+import PersonTree
 import TestUtils            exposing (..)
 import ServerApi            exposing (Person)
 
 
 all : Test
 all =
-    describe "Ancestors component"
+    describe "PersonTree component"
         [ describe "testing HTML"
             [ test "no person found" <|
                 \() ->
-                    Ancestors.view (testModel Nothing)
+                    PersonTree.view (testModel Nothing)
                     |> Query.fromHtml
                     |> Query.findAll [ class "person" ]
                     |> Query.count (Expect.equal 0)
-            , test "person without ancestors displayed" <|
+            , test "person without relatives displayed" <|
                 \() ->
-                    Ancestors.view (testModel <| Just testPerson)
+                    PersonTree.view (testModel <| Just testPerson)
                     |> Query.fromHtml
                     |> Query.findAll [ class "person" ]
                     |> Query.count (Expect.equal 1)
-            , test "ancestors tree displayed" <|
+            , test "person tree displayed" <|
                 \() ->
-                    Ancestors.view (testModel <| Just testPersonWithAncestors)
+                    PersonTree.view (testModel <| Just testPersonWithAll)
                     |> Query.fromHtml
                     |> Query.findAll [ class "person" ]
-                    |> Query.count (Expect.equal 3)
+                    |> Query.count (Expect.equal 5)
             ]
         ]
 
-testModel : Maybe Person -> Ancestors.Model
-testModel maybePerson  = Ancestors.Model maybePerson Nothing
+testModel : Maybe Person -> PersonTree.Model
+testModel maybePerson  = PersonTree.Model maybePerson Nothing

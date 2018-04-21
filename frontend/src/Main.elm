@@ -6,8 +6,7 @@ import Html
 import Navigation
 
 
-import Ancestors
-import Descendants
+import PersonTree
 import Login
 import Menu
 import Routes           exposing (..)
@@ -31,8 +30,7 @@ main =
 
 
 type alias Model =
-    { ancestorsModel : Ancestors.Model
-    , descendantsModel : Descendants.Model
+    { personTreeModel : PersonTree.Model
     , jwt : Maybe Jwt
     , loginModel: Login.Model
     , menuModel : Menu.Model
@@ -42,8 +40,7 @@ type alias Model =
 
 
 type Msg
-    = AncestorsMsg Ancestors.Msg
-    | DescendantsMsg Descendants.Msg
+    = PersonTreeMsg PersonTree.Msg
     | GlobalMsg Global.Msg
     | LoginMsg Login.Msg
     | MenuMsg Menu.Msg
@@ -54,8 +51,7 @@ initialModel : Flags -> Model
 initialModel flags =
     { route = LoginPage
     , previousRoute = Nothing
-    , ancestorsModel = Ancestors.init
-    , descendantsModel = Descendants.init
+    , personTreeModel = PersonTree.init
     , menuModel = Menu.init
     , loginModel = Login.init
     , jwt = if flags.jwt /= "" then Just flags.jwt else Nothing
@@ -74,13 +70,9 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
 
-        AncestorsMsg m ->
-            let ( subMdl, subCmd ) = Ancestors.update m model.ancestorsModel
-            in { model | ancestorsModel = subMdl } ! [ Cmd.map AncestorsMsg subCmd ]
-
-        DescendantsMsg m ->
-            let ( subMdl, subCmd ) = Descendants.update m model.descendantsModel
-            in { model | descendantsModel = subMdl } ! [ Cmd.map DescendantsMsg subCmd ]
+        PersonTreeMsg m ->
+            let ( subMdl, subCmd ) = PersonTree.update m model.personTreeModel
+            in { model | personTreeModel = subMdl } ! [ Cmd.map PersonTreeMsg subCmd ]
 
         GlobalMsg m ->
             case m of
@@ -118,22 +110,13 @@ urlUpdate loc model =
         Nothing  ->
             model ! [ Navigation.modifyUrl (Routes.encode model.route) ]
 
-        Just ((AncestorsPage personId) as route) ->
+        Just ((PersonTreePage personId) as route) ->
             case model.jwt of
                 Just jwt ->
                     { model | previousRoute = previousRoute
                             , route = route
-                            , ancestorsModel = Ancestors.init }
-                        ! [ Cmd.map AncestorsMsg <| Ancestors.mountCmd personId jwt ]
-                Nothing -> ( model, Cmd.none )
-
-        Just ((DescendantsPage personId) as route) ->
-            case model.jwt of
-                Just jwt ->
-                    { model | previousRoute = previousRoute
-                            , route = route
-                            , descendantsModel = Descendants.init }
-                        ! [ Cmd.map DescendantsMsg <| Descendants.mountCmd personId jwt ]
+                            , personTreeModel = PersonTree.init }
+                        ! [ Cmd.map PersonTreeMsg <| PersonTree.mountCmd personId jwt ]
                 Nothing -> ( model, Cmd.none )
 
         Just (LoginPage as route) ->
@@ -166,11 +149,8 @@ contentView : Model -> Html Msg
 contentView model =
     case model.route of
 
-        AncestorsPage id ->
-            Html.map AncestorsMsg <| Ancestors.view model.ancestorsModel
-
-        DescendantsPage id ->
-            Html.map DescendantsMsg <| Descendants.view model.descendantsModel
+        PersonTreePage id ->
+            Html.map PersonTreeMsg <| PersonTree.view model.personTreeModel
 
         LoginPage ->
             Html.map LoginMsg <| Login.view model.loginModel

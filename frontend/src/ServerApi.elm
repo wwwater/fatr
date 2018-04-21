@@ -79,24 +79,11 @@ searchPersons searchString jwt msg =
         }
         |> Http.send msg
 
-getAncestors : Int -> Jwt -> (Result Http.Error Person -> msg) -> Cmd msg
-getAncestors personId jwt msg =
+getPersonTree : Int -> Jwt -> (Result Http.Error Person -> msg) -> Cmd msg
+getPersonTree personId jwt msg =
     Http.request
         { method = "GET"
-        , url = baseUrl ++ "/person/" ++ toString personId ++ "/ancestors"
-        , headers = [ Http.header "jwt" jwt ]
-        , body = Http.emptyBody
-        , expect = Http.expectJson personDecoder
-        , timeout = Nothing
-        , withCredentials = False
-        }
-        |> Http.send msg
-
-getDescendants : Int -> Jwt -> (Result Http.Error Person -> msg) -> Cmd msg
-getDescendants personId jwt msg =
-    Http.request
-        { method = "GET"
-        , url = baseUrl ++ "/person/" ++ toString personId ++ "/descendants"
+        , url = baseUrl ++ "/person/" ++ toString personId ++ "/tree"
         , headers = [ Http.header "jwt" jwt ]
         , body = Http.emptyBody
         , expect = Http.expectJson personDecoder

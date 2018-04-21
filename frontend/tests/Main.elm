@@ -1,7 +1,6 @@
 port module Main exposing (..)
 
-import AncestorsTest
-import DescendantsTest
+import PersonTreeTest
 import InputSearchTest
 import LoginTest
 import RoutesTest
@@ -14,8 +13,7 @@ import Json.Encode      exposing (Value)
 main : TestProgram
 main =
     run emit (Test.concat
-        [ AncestorsTest.all
-        , DescendantsTest.all
+        [ PersonTreeTest.all
         , InputSearchTest.all
         , LoginTest.all
         , RoutesTest.all

@@ -38,7 +38,7 @@ type alias Model = {
 
 type Msg
     = HandleListRetrieved (Result Http.Error (List Person))
-    | GoToAncestors Int
+    | GoToPersonTree Int
     | Search String
     | InputSearchMsg (InputSearch.Msg Msg)
     | NoOp
@@ -76,8 +76,8 @@ update action model jwt =
                                                           options = [] } } in
                     handleServerError newModel err
 
-        GoToAncestors id ->
-            ( model , Routes.navigate (Routes.AncestorsPage id) )
+        GoToPersonTree id ->
+            ( model , Routes.navigate (Routes.PersonTreePage id) )
 
         Search s ->
             ( model, ServerApi.searchPersons s jwt HandleListRetrieved )
@@ -93,7 +93,7 @@ update action model jwt =
 personsToOptions : List Person -> List (InputSearch.Option Msg)
 personsToOptions persons =
       List.map (\p ->
-          { text = displayAsSearchEntry p, onClick = GoToAncestors p.id } )
+          { text = displayAsSearchEntry p, onClick = GoToPersonTree p.id } )
     <|List.sortBy (\p -> Maybe.withDefault "" p.birthday) persons
 
 

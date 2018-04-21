@@ -11,24 +11,18 @@ all : Test
 all =
     describe "testing Routes"
         [ describe "encoding routes"
-            [ test "/person/{id}/ancestors" <|
-                \() -> Routes.encode (Routes.AncestorsPage 1)
-                |> Expect.equal "/person/1/ancestors"
-            , test "/person/{id}/descendants" <|
-                \() -> Routes.encode (Routes.DescendantsPage 1)
-                |> Expect.equal "/person/1/descendants"
+            [ test "/person/{id}/tree" <|
+                \() -> Routes.encode (Routes.PersonTreePage 1)
+                |> Expect.equal "/person/1/tree"
             , test "/login" <|
                 \() -> Routes.encode (Routes.LoginPage)
                 |> Expect.equal "/login"
             ]
 
         , describe "decoding routes"
-            [ test "/person/{id}/ancestors" <|
-                \() -> Routes.decode (Location "" "" "" "" "" "" "/person/1/ancestors" "" "" "" "")
-                |> Expect.equal (Just (Routes.AncestorsPage 1))
-            , test "/person/{id}/descendants" <|
-                \() -> Routes.decode (Location "" "" "" "" "" "" "/person/1/descendants" "" "" "" "")
-                |> Expect.equal (Just (Routes.DescendantsPage 1))
+            [ test "/person/{id}/tree" <|
+                \() -> Routes.decode (Location "" "" "" "" "" "" "/person/1/tree" "" "" "" "")
+                |> Expect.equal (Just (Routes.PersonTreePage 1))
             , test "/login" <|
                 \() -> Routes.decode (Location "" "" "" "" "" "" "/login" "" "" "" "")
                 |> Expect.equal (Just (Routes.LoginPage))

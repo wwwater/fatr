@@ -16,14 +16,14 @@ formStyle = style [
 
 pageStyle : Attribute msg
 pageStyle = style [
-      ("background-color", "#aaa")
-    , ("display", "flex")
+      ("display", "flex")
     , ("align-items", "start")
     , ("justify-content", "center")
     , ("flex-grow", "1")
     , ("font-size", "12px")
     , ("font-weight", "bold")
     , ("padding-bottom", "20px")
+    , ("align-self", "center")
     ]
 
 treePageContentStyle : Attribute msg
@@ -53,12 +53,6 @@ personBareStyle = style [
     , ("align-items", "center")
     ]
 
--- depth could be negative as well
--- bigger number means older
--- for descendants (when starting from olderst) it should go
--- -1, -2, -3 etc
--- for ancestors (when starting from youngest) it should go
--- 0, 1, 2
 personBoxStyle : Int -> Attribute msg
 personBoxStyle depth = style [
       ("display", "flex")
@@ -78,7 +72,7 @@ spouseStyle = style [
     , ("padding", "5px")
     , ("margin", "10px 0 -15px 0")
     , ("border-radius", "15px")
-    , ("background-color", "#555")
+    , ("background-color", "#666")
     , ("color", "#ddd")
     , ("z-index", "1")
     , ("box-shadow", "2px 2px 5px 1px #333")
@@ -114,13 +108,27 @@ calculateGradients (r1,g1,b1) (r2,g2,b2) steps =
 
 gradientSteps = 7
 
-greenBrownGradients : List RGB
-greenBrownGradients = calculateGradients (204,228,175) (200,175,120) gradientSteps
+green : RGB
+green = (198,235,159)
+
+brown : RGB
+brown = (173,147,131)
+
+center : RGB
+center = (207,222,180)
+
+centerGreenGradients : List RGB
+--greenBrownGradients = calculateGradients (204,228,175) (200,175,120) gradientSteps
+centerGreenGradients = calculateGradients center green gradientSteps
+
+centerBrownGradients : List RGB
+centerBrownGradients = calculateGradients center brown gradientSteps
 
 
 getColor : Int -> String
 getColor i = (\(r,g,b) ->
     "rgb(" ++ (toString r) ++ "," ++ (toString g) ++ "," ++ (toString b) ++ ")")
-    <| Maybe.withDefault (0,0,0)
+    <| Maybe.withDefault (200,200,200)
     <| List.head
-    <| List.drop (if i < 0 then gradientSteps + i else i) greenBrownGradients
+    <| List.drop (abs i)
+    <| (if i > 0 then centerGreenGradients else centerBrownGradients)

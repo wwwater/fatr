@@ -19,9 +19,14 @@ testParents =
     (Just testPerson)
     (Just testPerson)
 
+testChildren : Children
+testChildren =
+    (\s c -> Children { spouse = s, childrenWithSpouse = c })
+    (Just testPerson)
+    [testPerson, testPerson]
 
-testPersonWithAncestors : Person
-testPersonWithAncestors = Person
+testPersonWithAll : Person
+testPersonWithAll = Person
     1
     (Just "Max")
     (Just "Planck")
@@ -29,21 +34,4 @@ testPersonWithAncestors = Person
     (Just "1858-04-23")
     (Just "1947-10-4")
     testParents
-    []
-
-testChildren : Children
-testChildren =
-    (\s c -> Children { spouse = s, childrenWithSpouse = c })
-    (Just testPerson)
-    [testPerson, testPerson]
-
-testPersonWithDescendants : Person
-testPersonWithDescendants = Person
-    1
-    (Just "Max")
-    (Just "Planck")
-    Nothing
-    (Just "1858-04-23")
-    (Just "1947-10-4")
-    (Parents { mother = Nothing, father = Nothing })
     [testChildren]

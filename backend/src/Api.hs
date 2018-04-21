@@ -39,17 +39,15 @@ jwtServer conn =
 type PersonAPI =
        Capture "personId" Int :> Get '[JSON] M.Person
   :<|> "search" :> Capture "searchString" String :> Get '[JSON] [M.Person]
-  :<|> Capture "personId" Int :> "ancestors" :> Get '[JSON] M.Person
-  :<|> Capture "personId" Int :> "descendants" :> Get '[JSON] M.Person
+  :<|> Capture "personId" Int :> "tree" :> Get '[JSON] M.Person
 
 personServer :: Connection -> Maybe M.JwtToken -> Server PersonAPI
 personServer conn jwt =
-    getPerson :<|> search :<|> getAncestors :<|> getDescendants
+    getPerson :<|> search :<|> getPersonTree
     where
       getPerson personId = withJwt jwt $ liftIOMaybeToHandler err404 $ L.getPersonById conn personId
       search searchString = withJwt jwt $ liftIO $ L.search conn searchString
-      getAncestors personId = withJwt jwt $ liftIOMaybeToHandler err404 $ L.getAncestors conn personId
-      getDescendants personId = withJwt jwt $ liftIOMaybeToHandler err404 $ L.getDescendants conn personId
+      getPersonTree personId = withJwt jwt $ liftIOMaybeToHandler err404 $ L.getPersonTree conn personId
 
 withJwt :: Maybe M.JwtToken -> Handler a -> Handler a
 withJwt jwt onValidJwt =
