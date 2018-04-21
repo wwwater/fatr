@@ -56,24 +56,24 @@ update action model =
 
 
 
-drawChild : Person -> Int -> Html Msg
-drawChild child depth =
+drawChild : Person -> Html Msg
+drawChild child =
   div [ personWithOthersStyle
       , style [ ("justify-content", "flex-end") ]
       , class "person"
       ]
-      [ drawDescendants child depth
-      , div [ personBoxStyle depth
+      [ drawDescendants child
+      , div [ personBoxStyle child.birthday
             , onClick (GoToPersonTree child.id)
             , title "Построить древо" ]
             [ drawBarePerson (Just child) ]
       ]
 
-drawDescendants : Person -> Int -> Html Msg
-drawDescendants person depth =
+drawDescendants : Person -> Html Msg
+drawDescendants person =
   let
-    drawChildrenWithSpouse : Children -> Int -> Html Msg
-    drawChildrenWithSpouse childrenWithSpouse depth =
+    drawChildrenWithSpouse : Children -> Html Msg
+    drawChildrenWithSpouse childrenWithSpouse =
       let spouse = getSpouse childrenWithSpouse
           children = getChildren childrenWithSpouse in
           div [ personWithOthersStyle
@@ -83,7 +83,7 @@ drawDescendants person depth =
               [ div [ branchesStyle
                     , style [ ("border-bottom", "1px dotted #333") ]
                     ]
-                    (List.map (\c -> drawChild c depth) children)
+                    (List.map drawChild children)
               , div [ spouseStyle
                     , onClick (GoToPersonTree <| Maybe.withDefault 0 <| Maybe.map .id spouse)
                     , title "Построить древо" ]
@@ -91,39 +91,36 @@ drawDescendants person depth =
               ]
   in
   div [ branchesStyle ]
-      (List.map (\c -> drawChildrenWithSpouse c (depth + 1))
+      (List.map drawChildrenWithSpouse
       <| List.reverse person.children)
 
-drawAncestor : Maybe Person -> Int -> Html Msg
-drawAncestor maybePerson depth =
+drawAncestor : Maybe Person -> Html Msg
+drawAncestor maybePerson =
   case maybePerson of
     Just person ->
       div [ personWithOthersStyle
           , style [ ("justify-content", "end") ]
           , class "person"
           ]
-          [ div [ personBoxStyle depth
+          [ div [ personBoxStyle person.birthday
                 , onClick (GoToPersonTree person.id)
                 , title "Построить древо"
                 ]
                 [ drawBarePerson maybePerson ]
-          , drawAncestors person (depth - 1)
+          , drawAncestors person
           ]
     Nothing -> div [] []
 
-drawAncestors : Person -> Int -> Html Msg
-drawAncestors person depth =
+drawAncestors : Person -> Html Msg
+drawAncestors person =
   div [ branchesStyle
       , style [ ("border-top", "1px dotted #333")
               , ("align-items", "start")
               ]
       ]
-      [ drawAncestor (getFather person) depth
-      , drawAncestor (getMother person) depth
+      [ drawAncestor (getFather person)
+      , drawAncestor (getMother person)
       ]
-
-initialDepth : Int
-initialDepth = 0
 
 view : Model -> Html Msg
 view model =
@@ -139,13 +136,13 @@ view model =
                                 , ("margin-right", "0")
                                 ]
                         ]
-                        [ drawDescendants person (initialDepth + 1) ]
-                  , div [ personBoxStyle initialDepth
+                        [ drawDescendants person ]
+                  , div [ personBoxStyle person.birthday
                         , style [ ("border", "3px dotted #eee") ]
                         , class "person"
                         ]
                         [ drawBarePerson model.person ]
-                  , drawAncestors person (initialDepth - 1)
+                  , drawAncestors person
                   ]
             Nothing -> div [] []
       ]

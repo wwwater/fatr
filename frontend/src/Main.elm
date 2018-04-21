@@ -147,14 +147,12 @@ view model =
                       , ("z-index", "-1")
                       , ("justify-content", "center")
                       ] ]
-              [ img [ src "/assets/background.png"
-                    , style [ ("width", "auto")
-                            , ("max-height", "90%")
+              [ img [ src "/assets/background.svg"
+                    , style [ ("max-height", "90%")
                             , ("position", "absolute")
                             , ("top", "10%")
                             , ("opacity", "0.6")
                             ]
-                    , alt ""
                     ]
                     []
               ]

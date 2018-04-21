@@ -52,14 +52,14 @@ personBareStyle = style [
     , ("align-items", "center")
     ]
 
-personBoxStyle : Int -> Attribute msg
-personBoxStyle depth = style [
+personBoxStyle : Maybe String -> Attribute msg
+personBoxStyle maybeBirthday = style [
       ("display", "flex")
     , ("padding", "5px")
     , ("margin", "10px 5px")
     , ("border", "1px solid #333")
     , ("border-radius", "15px")
-    , ("background-color", getColor depth)
+    , ("background-color", getColor maybeBirthday)
     , ("z-index", "2")
     , ("box-shadow", "2px 2px 5px 1px #333")
     , ("cursor", "pointer")
@@ -105,29 +105,28 @@ calculateGradients (r1,g1,b1) (r2,g2,b2) steps =
 
 
 
-gradientSteps = 7
-
-green : RGB
-green = (198,235,159)
+gradientSteps = 150
 
 brown : RGB
 brown = (173,147,131)
 
-center : RGB
-center = (207,222,180)
+green : RGB
+green = (198,235,159)
 
-centerGreenGradients : List RGB
---greenBrownGradients = calculateGradients (204,228,175) (200,175,120) gradientSteps
-centerGreenGradients = calculateGradients center green gradientSteps
+brownToGreenGradients : List RGB
+brownToGreenGradients = calculateGradients brown green gradientSteps
 
-centerBrownGradients : List RGB
-centerBrownGradients = calculateGradients center brown gradientSteps
+mostAncientBirthYear = 1870
 
-
-getColor : Int -> String
-getColor i = (\(r,g,b) ->
+getColor : Maybe String -> String
+getColor maybeBirthday =
+  let year = Result.withDefault mostAncientBirthYear
+    <| String.toInt
+    <| Maybe.withDefault ""
+    <| Maybe.map (\b -> String.left 4 b) maybeBirthday
+  in
+  (\(r,g,b) ->
     "rgb(" ++ (toString r) ++ "," ++ (toString g) ++ "," ++ (toString b) ++ ")")
     <| Maybe.withDefault (200,200,200)
     <| List.head
-    <| List.drop (abs i)
-    <| (if i > 0 then centerGreenGradients else centerBrownGradients)
+    <| List.drop (max 0 (year - mostAncientBirthYear)) brownToGreenGradients

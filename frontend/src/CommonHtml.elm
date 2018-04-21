@@ -26,12 +26,6 @@ formatDates person =
         death = Maybe.withDefault "" <| Maybe.map (\d -> " | " ++ d) person.deathday in
         birth ++ death
 
-
-getNameAndPatronymic : Person -> String
-getNameAndPatronymic person =
-    (Maybe.withDefault "?" person.givenName) ++ " " ++
-    (Maybe.withDefault "" person.patronymic)
-
 displayAsSearchEntry : Person -> String
 displayAsSearchEntry person =
     (Maybe.withDefault "?" person.surname) ++ " " ++
