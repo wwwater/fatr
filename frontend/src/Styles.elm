@@ -17,13 +17,12 @@ formStyle = style [
 pageStyle : Attribute msg
 pageStyle = style [
       ("display", "flex")
-    , ("align-items", "start")
+    , ("align-items", "center")
     , ("justify-content", "center")
     , ("flex-grow", "1")
     , ("font-size", "12px")
     , ("font-weight", "bold")
     , ("padding-bottom", "20px")
-    , ("align-self", "center")
     ]
 
 treePageContentStyle : Attribute msg

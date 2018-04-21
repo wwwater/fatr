@@ -135,12 +135,29 @@ view model =
                 , ("position", "absolute")
                 , ("align-items", "center")
                 , ("width", if showMenu then "1000px" else "auto")
-                , ("overflow", "scroll")
                 ] ]
         [ if showMenu
           then Html.map MenuMsg <| Menu.view model.menuModel
           else div [] []
         , contentView model
+        , div [ style [ ("display", "flex")
+                      , ("width", "100%")
+                      , ("min-width", "1000px")
+                      , ("height", "100%")
+                      , ("z-index", "-1")
+                      , ("justify-content", "center")
+                      ] ]
+              [ img [ src "/assets/background.png"
+                    , style [ ("width", "auto")
+                            , ("max-height", "90%")
+                            , ("position", "absolute")
+                            , ("top", "10%")
+                            , ("opacity", "0.6")
+                            ]
+                    , alt ""
+                    ]
+                    []
+              ]
         ]
 
 

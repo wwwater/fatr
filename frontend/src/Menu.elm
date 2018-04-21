@@ -98,7 +98,7 @@ personsToOptions persons =
 
 
 view : Model -> Html Msg
-view model = div [ style [ ("background-color", "#777")
+view model = div [ style [ ("background-color", "#999")
                          , ("display", "flex")
                          , ("justify-content", "center")
                          , ("border-radius", "10px")

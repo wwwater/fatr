@@ -134,12 +134,7 @@ view model =
           case model.person of
             Just person ->
               div [ treePageContentStyle ]
-                  [ h2 [ style [ ("display", "flex")
-                               , ("margin-bottom", "20px")
-                               ]
-                       ]
-                       [ text <| (getNameAndPatronymic person) ++ " как пуп земли" ]
-                  , div [ personWithOthersStyle
+                  [ div [ personWithOthersStyle
                         , style [ ("justify-content", "end")
                                 , ("margin-right", "0")
                                 ]
