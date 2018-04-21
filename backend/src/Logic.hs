@@ -52,6 +52,13 @@ search conn searchString = do
   persons <- S.search conn searchString
   return $ fmap toPerson persons
 
+getPersonTree :: Connection -> Int -> IO (Maybe Person)
+getPersonTree conn personId = do
+    withAncestors <- getAncestors conn personId
+    withDescendants <- getDescendants conn personId
+    return $ mergePerson withAncestors withDescendants
+
+
 getAncestors :: Connection -> Int -> IO (Maybe Person)
 getAncestors conn personId = do
   maybePersonDB <- S.selectPersonById conn personId
@@ -70,56 +77,36 @@ getAncestors conn personId = do
             maybeMother <- maybeMotherIO
             maybeFather <- maybeFatherIO
             let withMother = addMother person maybeMother
-                withFather = addFather withMother maybeFather
-            return $ Just $ withFather
+                withParents = addFather withMother maybeFather
+            return $ Just withParents
     Nothing -> return Nothing
 
 getDescendants :: Connection -> Int -> IO (Maybe Person)
 getDescendants conn personId = do
   maybePersonDB <- S.selectPersonById conn personId
   case maybePersonDB of
-    Just personDB ->
+    Just personDB -> do
       let person = toPerson personDB
           childrenListDB = (\(ChildrenDB cDB) -> cDB) $ childrenDB personDB
-          in foldl (\acc x -> getAndAddChildrenWithSpouse conn acc x) (return $ Just person) childrenListDB
+      withChildren <- foldl getAndAddChildrenWithSpouse (return person) childrenListDB
+      return $ Just withChildren
     Nothing -> return Nothing
 
-getPersonTree :: Connection -> Int -> IO (Maybe Person)
-getPersonTree conn personId = do
-  maybePersonDB <- S.selectPersonById conn personId
-  case maybePersonDB of
-    Just personDB ->
-      let person = toPerson personDB
-          maybeMotherId = (motherId . parentsDB) personDB
-          maybeFatherId = (fatherId . parentsDB) personDB
-          maybeMotherIO = case maybeMotherId of
-              Just mId -> getAncestors conn mId
-              Nothing -> return Nothing
-          maybeFatherIO = case maybeFatherId of
-              Just fId -> getAncestors conn fId
-              Nothing -> return Nothing
-          in do
-            maybeMother <- maybeMotherIO
-            maybeFather <- maybeFatherIO
-            let withMother = addMother person maybeMother
-                withFather = addFather withMother maybeFather
-                childrenListDB = (\(ChildrenDB cDB) -> cDB) $ childrenDB personDB
-                in foldl (\p cs -> getAndAddChildrenWithSpouse conn p cs) (return $ Just withFather) childrenListDB
-    Nothing -> return Nothing
-
-getAndAddChildrenWithSpouse :: Connection -> IO (Maybe Person) -> ChildrenWithSpouseDB -> IO (Maybe Person)
-getAndAddChildrenWithSpouse conn maybePersonIO childrenWithSpouseDB =
-  let maybeSpouseIO = case spouseId childrenWithSpouseDB of
-        Just sId -> getPersonById conn sId
-        Nothing -> return Nothing
-      childrenWithSpouseIds = childrenIds childrenWithSpouseDB
-      childrenIO = foldl getAndAddChild (return []) childrenWithSpouseIds
-    in do
-        maybeSpouse <- maybeSpouseIO
-        theirChildren <- childrenIO
-        maybePerson <- maybePersonIO
-        return $ fmap (\p -> addChildrenWithSpouse p maybeSpouse theirChildren) maybePerson
   where
+
+    getAndAddChildrenWithSpouse :: IO Person -> ChildrenWithSpouseDB -> IO Person
+    getAndAddChildrenWithSpouse personIO childrenWithSpouseDB =
+      let maybeSpouseIO = case spouseId childrenWithSpouseDB of
+            Just sId -> getPersonById conn sId
+            Nothing -> return Nothing
+          childrenWithSpouseIds = childrenIds childrenWithSpouseDB
+          childrenIO = foldl getAndAddChild (return []) childrenWithSpouseIds
+        in do
+            maybeSpouse <- maybeSpouseIO
+            theirChildren <- childrenIO
+            person <- personIO
+            return $ addChildrenWithSpouse person maybeSpouse theirChildren
+
     getAndAddChild :: IO ([Person]) -> Int -> IO ([Person])
     getAndAddChild childrenListIO childId = do
       maybeChild <- getDescendants conn childId
@@ -127,6 +114,7 @@ getAndAddChildrenWithSpouse conn maybePersonIO childrenWithSpouseDB =
       case maybeChild of
         Just child -> return $ child:childrenList
         Nothing -> childrenListIO
+
 
 
 toPerson :: PersonDB -> Person
@@ -156,4 +144,14 @@ addChildrenWithSpouse person maybeSpouse theirChildren =
       childrenWithOtherSpousesList = (\(Children cs) -> cs) $ children person
       in
       person { children = Children $ childrenWithOneMoreSpouse:childrenWithOtherSpousesList }
+
+mergePerson :: Maybe Person -> Maybe Person -> Maybe Person
+mergePerson maybePersonWithAncestors maybePersonWithDescendants =
+    case maybePersonWithAncestors of
+      Just withAncestors ->
+        case maybePersonWithDescendants of
+          Just withDescendants ->
+            Just $ withAncestors { children = children withDescendants }
+          Nothing -> maybePersonWithAncestors
+      Nothing -> maybePersonWithDescendants
 
