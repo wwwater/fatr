@@ -147,11 +147,11 @@ addChildrenWithSpouse person maybeSpouse theirChildren =
 
 mergePerson :: Maybe Person -> Maybe Person -> Maybe Person
 mergePerson maybePersonWithAncestors maybePersonWithDescendants =
-    case maybePersonWithAncestors of
-      Just withAncestors ->
-        case maybePersonWithDescendants of
-          Just withDescendants ->
-            Just $ withAncestors { children = children withDescendants }
-          Nothing -> maybePersonWithAncestors
-      Nothing -> maybePersonWithDescendants
+  case maybePersonWithAncestors of
+    Just withAncestors ->
+      case maybePersonWithDescendants of
+        Just withDescendants ->
+          Just $ withAncestors { children = children withDescendants }
+        Nothing -> maybePersonWithAncestors
+    Nothing -> maybePersonWithDescendants
 

@@ -134,6 +134,7 @@ view model =
                 , ("min-width", "100vw")
                 , ("position", "absolute")
                 , ("align-items", "center")
+                , ("padding", "5px")
                 , ("width", if showMenu then "1000px" else "auto")
                 ] ]
         [ if showMenu

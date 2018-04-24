@@ -23,6 +23,7 @@ pageStyle = style [
     , ("font-size", "12px")
     , ("font-weight", "bold")
     , ("padding-bottom", "20px")
+    , ("margin", "auto")
     ]
 
 treePageContentStyle : Attribute msg
