@@ -59,7 +59,6 @@ update action model =
 drawChild : Person -> Html Msg
 drawChild child =
   div [ personWithOthersStyle
-      , style [ ("justify-content", "flex-end") ]
       , class "person"
       ]
       [ drawDescendants child
@@ -77,7 +76,6 @@ drawDescendants person =
       let spouse = getSpouse childrenWithSpouse
           children = getChildren childrenWithSpouse in
           div [ personWithOthersStyle
-              , style [ ("justify-content", "flex-end") ]
               , class "children-with-spouse"
               ]
               [ div [ branchesStyle
@@ -99,7 +97,6 @@ drawAncestor maybePerson =
   case maybePerson of
     Just person ->
       div [ personWithOthersStyle
-          , style [ ("justify-content", "end") ]
           , class "person"
           ]
           [ div [ personBoxStyle person.birthday
@@ -132,9 +129,7 @@ view model =
             Just person ->
               div [ treePageContentStyle ]
                   [ div [ personWithOthersStyle
-                        , style [ ("justify-content", "end")
-                                , ("margin-right", "0")
-                                ]
+                        , style [ ("margin-right", "0") ]
                         ]
                         [ drawDescendants person ]
                   , div [ personBoxStyle person.birthday

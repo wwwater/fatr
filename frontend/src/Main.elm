@@ -147,6 +147,7 @@ view model =
                       , ("height", "100%")
                       , ("z-index", "-1")
                       , ("justify-content", "center")
+                      , ("margin", "auto")
                       ] ]
               [ img [ src "/assets/background.svg"
                     , style [ ("max-height", "90%")

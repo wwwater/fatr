@@ -17,9 +17,6 @@ formStyle = style [
 pageStyle : Attribute msg
 pageStyle = style [
       ("display", "flex")
-    , ("align-items", "center")
-    , ("justify-content", "center")
-    , ("flex-grow", "1")
     , ("font-size", "12px")
     , ("font-weight", "bold")
     , ("padding-bottom", "20px")
@@ -30,9 +27,7 @@ treePageContentStyle : Attribute msg
 treePageContentStyle = style [
       ("display", "flex")
     , ("flex-direction", "column")
-    , ("justify-content", "flex-start")
     , ("align-items", "center")
-    , ("flex-grow", "1")
     ]
 
 
@@ -42,6 +37,7 @@ personWithOthersStyle = style [
     , ("flex-direction", "column")
     , ("align-items", "center")
     , ("margin-right", "10px")
+    , ("justify-content", "flex-end")
     ]
 
 
@@ -83,7 +79,6 @@ branchesStyle : Attribute msg
 branchesStyle = style [
       ("display", "flex")
     , ("flex-direction", "row")
-    , ("justify-content", "center")
     , ("border-radius", "15px")
     ]
 
