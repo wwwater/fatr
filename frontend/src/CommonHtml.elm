@@ -1,13 +1,13 @@
-module CommonHtml   exposing (..)
+module CommonHtml       exposing (..)
 
-import Html         exposing (..)
-import Html.Events  exposing ( on, keyCode )
+import Html             exposing (..)
+import Html.Attributes  exposing ( style )
+import Html.Events      exposing ( on, keyCode )
 
-import Json.Decode  as Json
+import Json.Decode      as Json
 
-import Styles       exposing (..)
-import ServerApi    exposing ( Person )
-
+import Styles           exposing (..)
+import ServerApi        exposing ( Person )
 
 drawBarePerson : Maybe Person -> Html msg
 drawBarePerson maybePerson =

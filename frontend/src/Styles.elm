@@ -19,14 +19,16 @@ pageStyle = style [
       ("display", "flex")
     , ("font-size", "12px")
     , ("font-weight", "bold")
-    , ("padding-bottom", "20px")
-    , ("margin", "auto")
+    , ("padding", "20px 0")
+    , ("margin-left", "auto")
+    , ("margin-right", "auto")
     ]
 
 treePageContentStyle : Attribute msg
 treePageContentStyle = style [
       ("display", "flex")
     , ("flex-direction", "column")
+    , ("flex-grow", "1")
     , ("align-items", "center")
     ]
 
@@ -36,7 +38,6 @@ personWithOthersStyle = style [
       ("display", "flex")
     , ("flex-direction", "column")
     , ("align-items", "center")
-    , ("margin-right", "10px")
     , ("justify-content", "flex-end")
     ]
 
@@ -52,6 +53,7 @@ personBareStyle = style [
 personBoxStyle : Maybe String -> Attribute msg
 personBoxStyle maybeBirthday = style [
       ("display", "flex")
+    , ("flex-direction", "column")
     , ("padding", "5px")
     , ("margin", "10px 5px")
     , ("border", "1px solid #333")
@@ -79,7 +81,8 @@ branchesStyle : Attribute msg
 branchesStyle = style [
       ("display", "flex")
     , ("flex-direction", "row")
-    , ("border-radius", "15px")
+    , ("border-radius", "30px")
+    , ("margin", "5px")
     ]
 
 

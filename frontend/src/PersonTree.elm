@@ -66,6 +66,7 @@ drawChild child =
             , onClick (GoToPersonTree child.id)
             , title "Построить древо" ]
             [ drawBarePerson (Just child) ]
+
       ]
 
 drawDescendants : Person -> Html Msg
@@ -78,19 +79,23 @@ drawDescendants person =
           div [ personWithOthersStyle
               , class "children-with-spouse"
               ]
-              [ div [ branchesStyle
-                    , style [ ("border-bottom", "1px dotted #333") ]
-                    ]
-                    (List.map drawChild children)
+              [ if List.length children > 0 then
+                  div [ branchesStyle
+                      , style [ ("border", "2px dotted #333") ]
+                      ]
+                      (List.map drawChild children)
+                else div [] []
               , div [ spouseStyle
                     , onClick (GoToPersonTree <| Maybe.withDefault 0 <| Maybe.map .id spouse)
                     , title "Построить древо" ]
                     [ drawBarePerson spouse ]
               ]
   in
-  div [ branchesStyle ]
-      (List.map drawChildrenWithSpouse
-      <| List.reverse person.children)
+    if List.length person.children > 0 then
+      div [ branchesStyle ]
+          (List.map drawChildrenWithSpouse
+          <| List.reverse person.children)
+    else div [] []
 
 drawAncestor : Maybe Person -> Html Msg
 drawAncestor maybePerson =
@@ -110,14 +115,20 @@ drawAncestor maybePerson =
 
 drawAncestors : Person -> Html Msg
 drawAncestors person =
-  div [ branchesStyle
-      , style [ ("border-top", "1px dotted #333")
-              , ("align-items", "start")
-              ]
-      ]
-      [ drawAncestor (getFather person)
-      , drawAncestor (getMother person)
-      ]
+  let maybeFather = getFather person
+      maybeMother = getMother person in
+    if maybeFather /= Nothing || maybeMother /= Nothing then
+      div [ branchesStyle
+          , style [ ("border", "2px dotted #333")
+                  , ("align-items", "start")
+                  ]
+          ]
+          [ drawAncestor (getFather person)
+          , drawAncestor (getMother person)
+          ]
+    else div [] []
+
+
 
 view : Model -> Html Msg
 view model =

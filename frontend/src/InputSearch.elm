@@ -148,6 +148,7 @@ drawInput model =
                   , ("border", "none")
                   , ("border-radius", "10px")
                   , ("background", "#eee")
+                  , ("font-weight", "bold")
                   ]
           , autofocus True
           , id "search-option-0"

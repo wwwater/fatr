@@ -140,7 +140,6 @@ view model =
         [ if showMenu
           then Html.map MenuMsg <| Menu.view model.menuModel
           else div [] []
-        , contentView model
         , div [ style [ ("display", "flex")
                       , ("width", "100%")
                       , ("min-width", "1000px")
@@ -158,6 +157,9 @@ view model =
                     ]
                     []
               ]
+        , div [ style [("flex-grow", "3") ] ] []
+        , contentView model
+        , div [ style [("flex-grow", "1") ] ] []
         ]
 
 
