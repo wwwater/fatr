@@ -32,9 +32,9 @@ all =
                     PersonTree.view (testModel <| Just testPersonWithAll)
                     |> Query.fromHtml
                     |> Query.findAll [ class "person" ]
-                    |> Query.count (Expect.equal 5)
+                    |> Query.count (Expect.equal 7)
             ]
         ]
 
 testModel : Maybe Person -> PersonTree.Model
-testModel maybePerson  = PersonTree.Model maybePerson Nothing
+testModel maybePerson  = PersonTree.Model maybePerson [] Nothing

@@ -48,6 +48,7 @@ personBareStyle = style [
       ("display", "flex")
     , ("flex-direction", "column")
     , ("align-items", "center")
+    , ("position", "relative")
     ]
 
 personBoxStyle : Maybe String -> Attribute msg
@@ -59,7 +60,7 @@ personBoxStyle maybeBirthday = style [
     , ("border", "1px solid #333")
     , ("border-radius", "15px")
     , ("background-color", getColor maybeBirthday)
-    , ("z-index", "2")
+    , ("position", "relative")
     , ("box-shadow", "2px 2px 5px 1px #333")
     , ("cursor", "pointer")
     ]
@@ -72,7 +73,7 @@ spouseStyle = style [
     , ("border-radius", "15px")
     , ("background-color", "#666")
     , ("color", "#ddd")
-    , ("z-index", "1")
+    , ("position", "relative")
     , ("box-shadow", "2px 2px 5px 1px #333")
     , ("cursor", "pointer")
     ]

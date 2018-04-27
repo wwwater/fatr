@@ -15,6 +15,8 @@ import ServerApi        exposing (Jwt)
 
 port save : String -> Cmd msg
 port remove : () -> Cmd msg
+port drawConnections : List (Int, Int) -> Cmd msg
+
 
 
 type alias Flags = { jwt : String }
@@ -72,7 +74,8 @@ update msg model =
 
         PersonTreeMsg m ->
             let ( subMdl, subCmd ) = PersonTree.update m model.personTreeModel
-            in { model | personTreeModel = subMdl } ! [ Cmd.map PersonTreeMsg subCmd ]
+            in { model | personTreeModel = subMdl } !
+                [ Cmd.map PersonTreeMsg subCmd, drawConnections subMdl.connections ]
 
         GlobalMsg m ->
             case m of
@@ -144,7 +147,7 @@ view model =
                       , ("width", "100%")
                       , ("min-width", "1000px")
                       , ("height", "100%")
-                      , ("z-index", "-1")
+                      , ("z-index", "-3")
                       , ("justify-content", "center")
                       , ("margin", "auto")
                       ] ]

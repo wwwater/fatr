@@ -16,14 +16,22 @@ testPerson = Person
 testParents : Parents
 testParents =
     (\m f -> Parents { mother = m, father = f })
-    (Just testPerson)
-    (Just testPerson)
+    (Just { testPerson | id = 2
+                       , parents = Parents { mother = Just { testPerson | id = 22 }
+                                           , father = Nothing } })
+    (Just { testPerson | id = 3 })
 
 testChildren : Children
 testChildren =
     (\s c -> Children { spouse = s, childrenWithSpouse = c })
-    (Just testPerson)
-    [testPerson, testPerson]
+    (Just { testPerson | id = 4
+                       , parents = Parents { father = Just { testPerson | id = 43 }
+                                           , mother = Nothing } })
+    [ { testPerson | id = 5 }
+    , { testPerson | id = 6
+                   , children = [ Children { spouse = Nothing
+                                         , childrenWithSpouse = [ { testPerson | id = 65} ] } ] }
+    ]
 
 testPersonWithAll : Person
 testPersonWithAll = Person

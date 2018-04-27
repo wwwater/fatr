@@ -1,7 +1,7 @@
 module CommonHtml       exposing (..)
 
 import Html             exposing (..)
-import Html.Attributes  exposing ( style )
+import Html.Attributes  exposing ( style, id, class )
 import Html.Events      exposing ( on, keyCode )
 
 import Json.Decode      as Json
@@ -13,10 +13,23 @@ drawBarePerson : Maybe Person -> Html msg
 drawBarePerson maybePerson =
     case maybePerson of
         Just person ->
-          div [ personBareStyle ]
+          div [ personBareStyle
+              , id <| "person-" ++ toString person.id
+              ]
                 [ div [] [ text <| Maybe.withDefault "" <| person.surname ]
                 , div [] [ text <| Maybe.withDefault "" <| person.givenName ]
                 , div [] [ text <| formatDates person ]
+                , div [ id <| "incoming-line-" ++ toString person.id
+                      , class "incoming-line"
+                      , style [ ("height", "2px")
+                              , ("background-color", "#666")
+                              , ("position", "absolute")
+                              , ("cursor" ,"auto")
+                              , ("z-index", "-2")
+                              ]
+                      ]
+                      []
+
                 ]
         Nothing -> div [] [ text "?" ]
 

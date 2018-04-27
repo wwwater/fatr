@@ -7,7 +7,7 @@ module PersonTree       exposing ( Model
                                  )
 
 import Html             exposing (..)
-import Html.Attributes  exposing ( style, class, title )
+import Html.Attributes  exposing ( style, class, title, id )
 import Html.Events      exposing ( onClick )
 import Http
 
@@ -18,11 +18,13 @@ import ServerApi        exposing (..)
 import Routes
 import Styles           exposing (..)
 import CommonHtml       exposing (..)
+import ConnectionsUtil  exposing (..)
 
 
 
 type alias Model =
   { person : Maybe Person
+  , connections : List (Int, Int)
   , error : Maybe String
   }
 
@@ -34,7 +36,7 @@ type Msg
 
 init : Model
 init =
-  Model Nothing Nothing
+  Model Nothing [] Nothing
 
 
 mountCmd : Int -> Jwt -> Cmd Msg
@@ -48,11 +50,14 @@ update action model =
     HandlePersonRetrieved res ->
       case res of
         Result.Ok person ->
-          onlyUpdateModel { model | person = Just person }
+          onlyUpdateModel { model | person = Just person
+                                  , connections = calculateConnectingLines person }
 
         Result.Err err ->
-          handleServerError { model | person = Nothing } err
-    GoToPersonTree id -> ( model, Routes.navigate (Routes.PersonTreePage id) )
+          handleServerError { model | person = Nothing, connections = [] } err
+    GoToPersonTree id -> ( { model | connections = [] }
+                         , Routes.navigate (Routes.PersonTreePage id) )
+
 
 
 
@@ -79,23 +84,17 @@ drawDescendants person =
           div [ personWithOthersStyle
               , class "children-with-spouse"
               ]
-              [ if List.length children > 0 then
-                  div [ branchesStyle
-                      , style [ ("border", "2px dotted #333") ]
-                      ]
+              [ div [ branchesStyle ]
                       (List.map drawChild children)
-                else div [] []
               , div [ spouseStyle
                     , onClick (GoToPersonTree <| Maybe.withDefault 0 <| Maybe.map .id spouse)
                     , title "Построить древо" ]
                     [ drawBarePerson spouse ]
               ]
   in
-    if List.length person.children > 0 then
-      div [ branchesStyle ]
-          (List.map drawChildrenWithSpouse
-          <| List.reverse person.children)
-    else div [] []
+    div [ branchesStyle ]
+        (List.map drawChildrenWithSpouse
+        <| List.reverse person.children)
 
 drawAncestor : Maybe Person -> Html Msg
 drawAncestor maybePerson =
@@ -117,16 +116,12 @@ drawAncestors : Person -> Html Msg
 drawAncestors person =
   let maybeFather = getFather person
       maybeMother = getMother person in
-    if maybeFather /= Nothing || maybeMother /= Nothing then
-      div [ branchesStyle
-          , style [ ("border", "2px dotted #333")
-                  , ("align-items", "start")
-                  ]
-          ]
-          [ drawAncestor (getFather person)
-          , drawAncestor (getMother person)
-          ]
-    else div [] []
+    div [ branchesStyle
+        , style [ ("align-items", "start") ]
+        ]
+        [ drawAncestor (getFather person)
+        , drawAncestor (getMother person)
+        ]
 
 
 
@@ -138,7 +133,10 @@ view model =
         Nothing ->
           case model.person of
             Just person ->
-              div [ treePageContentStyle ]
+              div [ treePageContentStyle
+                  , id "tree-page-content"
+                  , style [ ("opacity", "0") ]
+                  ]
                   [ div [ personWithOthersStyle
                         , style [ ("margin-right", "0") ]
                         ]
