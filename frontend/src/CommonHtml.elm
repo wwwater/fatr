@@ -5,6 +5,7 @@ import Html.Attributes  exposing ( style, id, class, src )
 import Html.Events      exposing ( on, keyCode )
 
 import Json.Decode      as Json
+import Char             exposing (fromCode)
 
 import Styles           exposing (..)
 import ServerApi        exposing ( Person )
@@ -58,7 +59,9 @@ treeBackground =
 formatDates : Person -> String
 formatDates person =
     let birth = Maybe.withDefault "?" person.birthday
-        death = Maybe.withDefault "" <| Maybe.map (\d -> " | " ++ d) person.deathday in
+        death = Maybe.withDefault "" <| Maybe.map (\d ->
+          String.fromChar (Char.fromCode 0xA0)  -- nbsp
+          ++ "| " ++ d) person.deathday in
         birth ++ death
 
 displayAsSearchEntry : Person -> String

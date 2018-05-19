@@ -1,5 +1,5 @@
 # Haskell/Elm App 
-### A web application to plot family tree
+### A web application to plot FAmily TRee
 
 
 ---
