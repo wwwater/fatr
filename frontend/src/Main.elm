@@ -7,6 +7,7 @@ import Navigation
 
 
 import PersonTree
+import PersonSiblings
 import Login
 import Menu
 import Routes           exposing (..)
@@ -33,6 +34,7 @@ main =
 
 type alias Model =
     { personTreeModel : PersonTree.Model
+    , personSiblingsModel : PersonSiblings.Model
     , jwt : Maybe Jwt
     , loginModel: Login.Model
     , menuModel : Menu.Model
@@ -43,6 +45,7 @@ type alias Model =
 
 type Msg
     = PersonTreeMsg PersonTree.Msg
+    | PersonSiblingsMsg PersonSiblings.Msg
     | GlobalMsg Global.Msg
     | LoginMsg Login.Msg
     | MenuMsg Menu.Msg
@@ -54,6 +57,7 @@ initialModel flags =
     { route = LoginPage
     , previousRoute = Nothing
     , personTreeModel = PersonTree.init
+    , personSiblingsModel = PersonSiblings.init
     , menuModel = Menu.init
     , loginModel = Login.init
     , jwt = if flags.jwt /= "" then Just flags.jwt else Nothing
@@ -76,6 +80,11 @@ update msg model =
             let ( subMdl, subCmd ) = PersonTree.update m model.personTreeModel
             in { model | personTreeModel = subMdl } !
                 [ Cmd.map PersonTreeMsg subCmd, drawConnections subMdl.connections ]
+
+        PersonSiblingsMsg m ->
+            let ( subMdl, subCmd ) = PersonSiblings.update m model.personSiblingsModel
+            in { model | personSiblingsModel = subMdl } !
+                [ Cmd.map PersonSiblingsMsg subCmd ]
 
         GlobalMsg m ->
             case m of
@@ -122,6 +131,15 @@ urlUpdate loc model =
                         ! [ Cmd.map PersonTreeMsg <| PersonTree.mountCmd personId jwt ]
                 Nothing -> ( model, Cmd.none )
 
+        Just ((PersonSiblingsPage personId) as route) ->
+            case model.jwt of
+                Just jwt ->
+                    { model | previousRoute = previousRoute
+                            , route = route
+                            , personSiblingsModel = PersonSiblings.init }
+                        ! [ Cmd.map PersonSiblingsMsg <| PersonSiblings.mountCmd personId jwt ]
+                Nothing -> ( model, Cmd.none )
+
         Just (LoginPage as route) ->
             { model | previousRoute = previousRoute
                     , route = route }
@@ -137,32 +155,11 @@ view model =
                 , ("min-width", "100vw")
                 , ("position", "absolute")
                 , ("align-items", "center")
-                , ("padding", "5px")
-                , ("width", if showMenu then "1000px" else "auto")
                 ] ]
         [ if showMenu
           then Html.map MenuMsg <| Menu.view model.menuModel
           else div [] []
-        , div [ style [ ("display", "flex")
-                      , ("width", "100%")
-                      , ("min-width", "1000px")
-                      , ("height", "100%")
-                      , ("z-index", "-3")
-                      , ("justify-content", "center")
-                      , ("margin", "auto")
-                      ] ]
-              [ img [ src "/assets/background.svg"
-                    , style [ ("max-height", "90%")
-                            , ("position", "absolute")
-                            , ("top", "10%")
-                            , ("opacity", "0.6")
-                            ]
-                    ]
-                    []
-              ]
-        , div [ style [("flex-grow", "3") ] ] []
         , contentView model
-        , div [ style [("flex-grow", "1") ] ] []
         ]
 
 
@@ -173,6 +170,9 @@ contentView model =
 
         PersonTreePage id ->
             Html.map PersonTreeMsg <| PersonTree.view model.personTreeModel
+
+        PersonSiblingsPage id ->
+            Html.map PersonSiblingsMsg <| PersonSiblings.view model.personSiblingsModel
 
         LoginPage ->
             Html.map LoginMsg <| Login.view model.loginModel

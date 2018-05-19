@@ -2,6 +2,7 @@ port module Main exposing (..)
 
 import ConnectionsUtilTest
 import PersonTreeTest
+import PersonSiblingsTest
 import InputSearchTest
 import LoginTest
 import RoutesTest
@@ -15,6 +16,7 @@ main : TestProgram
 main =
     run emit (Test.concat
         [ PersonTreeTest.all
+        , PersonSiblingsTest.all
         , ConnectionsUtilTest.all
         , InputSearchTest.all
         , LoginTest.all

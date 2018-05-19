@@ -1,11 +1,12 @@
 module Global       exposing ( Msg(..)
                              , handleServerError
                              , onlyUpdateModel
+                             , nthElement
                              )
 
 import Http
 
-import ServerApi    exposing (Jwt)
+import ServerApi    exposing (..)
 import Routes       exposing (..)
 
 
@@ -44,3 +45,6 @@ handleServerError model err =
 onlyUpdateModel : m -> ( m, Cmd msg )
 onlyUpdateModel model = ( model, Cmd.none )
 
+
+nthElement : List a -> Int -> Maybe a
+nthElement xs n = List.drop n xs |> List.head

@@ -100,7 +100,8 @@ personsToOptions persons =
 view : Model -> Html Msg
 view model = div [ style [ ("background-color", "#999")
                          , ("display", "flex")
-                         , ("justify-content", "center")
                          , ("border-radius", "10px")
+                         , ("position", "absolute")
+                         , ("margin", "5px")
                          , ("padding", "20px") ] ]
                  [ Html.map InputSearchMsg <| InputSearch.view model.inputSearchModel ]

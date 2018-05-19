@@ -161,15 +161,62 @@ spec = beforeAll testConnect $
            \\"surname\":\"Planck\"}]"
           {matchStatus = 200}
 
+  describe "test GET /person/{id}/siblings endpoint" $
+    after (\connection -> do
+          Sql.execute_ connection "DROP TABLE person"
+          Sql.execute_ connection "DROP TABLE user"
+          ) $ do
+
+    it "returns unauthorized without jwt" $ \connection ->
+      addUserAndCheck connection $
+        request "GET"
+                "/person/1/siblings"
+                []
+                ""
+        `shouldRespondWith` 401
+
+    it "retrieves person's tree" $ \connection ->
+      setupAndCheck connection addTestPerson $ do
+        response <- makeJwtRequest
+        request "GET"
+                "/person/5/siblings"
+                [("Content-Type", "application/json"), ("jwt", getJwtFromResponse response)]
+                ""
+        `shouldRespondWith`
+          "[[{\"givenName\":\"Erwinn\",\
+           \\"deathday\":null,\
+           \\"patronymic\":null,\
+           \\"children\":[],\
+           \\"birthday\":null,\
+           \\"parents\":{\"father\":null,\"mother\":null},\
+           \\"id\":5,\
+           \\"surname\":\"Planck\"}],\
+           \[],\
+           \[{\"givenName\":\"CousinOfErwinn\",\
+           \\"deathday\":null,\
+           \\"patronymic\":null,\
+           \\"children\":[],\
+           \\"birthday\":null,\
+           \\"parents\":{\"father\":null,\"mother\":null},\
+           \\"id\":7,\
+           \\"surname\":\"Planck\"}],[]]"
+          {matchStatus = 200}
+
 addTestPerson :: Sql.Connection -> IO ()
 addTestPerson connection = do
     Sql.execute_ connection
-      "INSERT INTO person (givenName, surname, parents, children) VALUES \
-      \('Max', 'Planck', '{\"motherId\":2,\"fatherId\":3}', '[{\"spouseId\":4, \"childrenIds\":[5]}]')"
+      "INSERT INTO person (id, givenName, surname, parents, children) VALUES \
+      \(1, 'Max', 'Planck', '{\"motherId\":2,\"fatherId\":3}', '[{\"spouseId\":4, \"childrenIds\":[5]}]')"
     Sql.execute_ connection
       "INSERT INTO person (id, givenName, surname, parents, children) VALUES \
-      \(3, 'Johann', 'Planck', '', '[{\"spouseId\":2, \"childrenIds\":[1]}]')"
+      \(3, 'Johann', 'Planck', '', '[{\"spouseId\":2, \"childrenIds\":[1,6]}]')"
     Sql.execute_ connection
       "INSERT INTO person (id, givenName, surname, parents, children) VALUES \
-      \(5, 'Erwinn', 'Planck', '', '[]')"
+      \(5, 'Erwinn', 'Planck', '{\"motherId\":4,\"fatherId\":1}', '[]')"
+    Sql.execute_ connection
+      "INSERT INTO person (id, givenName, surname, parents, children) VALUES \
+      \(6, 'BrotherOfMax', 'Planck', '', '[{\"spouseId\":null, \"childrenIds\":[7]}]')"
+    Sql.execute_ connection
+      "INSERT INTO person (id, givenName, surname, parents, children) VALUES \
+      \(7, 'CousinOfErwinn', 'Planck', '', '[]')"
 

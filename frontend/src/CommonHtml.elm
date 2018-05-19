@@ -1,7 +1,7 @@
 module CommonHtml       exposing (..)
 
 import Html             exposing (..)
-import Html.Attributes  exposing ( style, id, class )
+import Html.Attributes  exposing ( style, id, class, src )
 import Html.Events      exposing ( on, keyCode )
 
 import Json.Decode      as Json
@@ -32,6 +32,28 @@ drawBarePerson maybePerson =
 
                 ]
         Nothing -> div [] [ text "?" ]
+
+
+treeBackground : Html msg
+treeBackground =
+  div [ style [ ("display", "flex")
+          , ("width", "100%")
+          , ("min-width", "1000px")
+          , ("z-index", "-3")
+          , ("justify-content", "center")
+          , ("margin-left", "auto")
+          , ("margin-right", "auto")
+          ] ]
+      [ img [ src "/assets/background.svg"
+            , style [ ("max-height", "90%")
+                    , ("position", "absolute")
+                    , ("top", "10%")
+                    , ("opacity", "0.6")
+                    ]
+            ]
+            []
+      ]
+
 
 formatDates : Person -> String
 formatDates person =

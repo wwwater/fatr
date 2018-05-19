@@ -124,29 +124,37 @@ drawAncestors person =
         ]
 
 
+drawTree : Maybe Person -> Html Msg
+drawTree maybePerson =
+  case maybePerson of
+    Just person ->
+      div [ treeStyle
+          , id "tree-page-content"
+          , style [ ("opacity", "0") ]
+          ]
+          [ div [ personWithOthersStyle
+                , style [ ("margin-right", "0") ]
+                ]
+                [ drawDescendants person ]
+          , div [ personBoxStyle person.birthday
+                , style [ ("border", "3px dotted #eee") ]
+                , class "person"
+                ]
+                [ drawBarePerson maybePerson ]
+          , drawAncestors person
+          ]
+    Nothing -> div [] []
+
 
 view : Model -> Html Msg
 view model =
   div [ pageStyle ]
-      [ case model.error of
-        Just error -> h2 [ ] [ text error ]
-        Nothing ->
-          case model.person of
-            Just person ->
-              div [ treePageContentStyle
-                  , id "tree-page-content"
-                  , style [ ("opacity", "0") ]
-                  ]
-                  [ div [ personWithOthersStyle
-                        , style [ ("margin-right", "0") ]
-                        ]
-                        [ drawDescendants person ]
-                  , div [ personBoxStyle person.birthday
-                        , style [ ("border", "3px dotted #eee") ]
-                        , class "person"
-                        ]
-                        [ drawBarePerson model.person ]
-                  , drawAncestors person
-                  ]
-            Nothing -> div [] []
+      [ treeBackground
+      , case model.error of
+          Just error -> h2 [ style [ ("align-self", "center") ] ] [ text error ]
+          Nothing -> div [] []
+      , h2 [ style [ ("align-self", "center") ] ] [ text "Древо прямых предков и потомков" ]
+      , div [ style [("flex-grow", "3") ] ] []
+      , drawTree model.person
+      , div [ style [("flex-grow", "1") ] ] []
       ]

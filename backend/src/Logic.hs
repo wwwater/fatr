@@ -4,7 +4,8 @@ module Logic where
 import Crypto.PasswordStore                 (verifyPassword)
 import Data.ByteString.Char8                (pack)
 import Data.Char                            (toLower)
-import Data.Maybe                           (fromMaybe)
+import Data.List                            (notElem, nub)
+import Data.Maybe                           (fromMaybe, fromJust, isJust)
 import Data.Text                            (unpack)
 import Database.SQLite.Simple               (Connection)
 import System.Environment                   (lookupEnv)
@@ -114,6 +115,96 @@ getDescendants conn personId = do
       case maybeChild of
         Just child -> return $ child:childrenList
         Nothing -> childrenListIO
+
+
+-- function returns siblings of a person grouped by kinship, e.g.
+-- [[1st kinship siblings, i.e. brothers and sisters], [cousins], [2nd cousins], ...]
+-- function consists of 3 parts:
+-- 1. find all paths of all descendants of the persons deepest ancestors
+-- 2. divide all these siblings into groups by kinship
+-- 3. convert siblings ids to persons
+findSiblings :: Connection -> Int -> IO [[Person]]
+findSiblings conn pId = do
+  siblingsPaths <- collectSameLevelSiblings pId 0 []
+  let maxDepth = maximum $ map length siblingsPaths
+  let siblingsIds = [pId] : map (\d -> filterSiblingsOfKinship siblingsPaths d) [1 .. maxDepth]
+  sequence $ map (\siblingsOfKinship -> do
+                 siblings <- sequence $ map (\s -> getPersonById conn s) siblingsOfKinship
+                 return $ map fromJust $ filter isJust siblings
+                 )
+                 siblingsIds
+
+  where
+
+    -- traverse the tree to collect all siblings of the same level
+    -- (same level means cousins but not uncles).
+    -- first ascend the tree until the earliest ancestors
+    -- then descend all branches until reached the initial depth
+    -- prepend path upon descending to form the following paths
+    -- [
+    -- [personId, personMotherId, personMaternalGrandmothedId],
+    -- [personId, personMotherId, personMaternalGrandFatherId],
+    -- [personId, personFatherId, personPaternalGrandMotherId],
+    -- ...
+    -- [cousinId, cousinMothedId, personMatenalGrandmotherId],
+    -- ...
+    -- ]
+    collectSameLevelSiblings :: Int -> Int -> [Int] -> IO [[Int]]
+    collectSameLevelSiblings personId depth path = do
+      maybePersonDB <- S.selectPersonById conn personId
+      case maybePersonDB of
+        Nothing -> return [path]
+        Just personDB ->
+          let maybeMotherId = (motherId . parentsDB) personDB
+              maybeFatherId = (fatherId . parentsDB) personDB in
+            if null path && (maybeMotherId /= Nothing || maybeFatherId /= Nothing)  -- ascending
+              then
+                let siblingsFromMotherSideIO =
+                      case maybeMotherId of
+                        Nothing -> return []
+                        Just mId -> collectSameLevelSiblings mId (depth + 1) path
+                    siblingsFromFatherSideIO =
+                      case maybeFatherId of
+                        Nothing -> return []
+                        Just fId -> collectSameLevelSiblings fId (depth + 1) path
+
+                  in do
+                        siblingsFromMotherSide <- siblingsFromMotherSideIO
+                        siblingsFromFatherSide <- siblingsFromFatherSideIO
+                        return $ siblingsFromMotherSide ++ siblingsFromFatherSide
+              else
+                if depth == 0
+                  then return [personId : path] -- reached sibling of the same level, returning it
+                  else -- descending
+                    let allChildrenIds = concat $ map childrenIds $ (\(ChildrenDB cDB) -> cDB) $ childrenDB personDB in
+                      if null allChildrenIds
+                        then return [] -- branch has no siblings of the same level, nothing returned
+                        else fmap concat $
+                             sequence $
+                             map (\childId -> collectSameLevelSiblings childId (depth - 1) (personId : path)) allChildrenIds
+
+    -- among all siblings filter out those that have the same (kinship)-th ancestor but different ones up to it
+    -- e.g. for kinship = 2 all cousins will be selected, which means all
+    -- siblings that have the same number on the index 2, but different index 1
+    -- (i.e. different person, with different parents but with the same grandparent)
+    filterSiblingsOfKinship :: [[Int]] -> Int -> [Int]
+    filterSiblingsOfKinship paths kinship =
+      let personPaths = filter (\p -> length p >= (kinship + 1) && head p == pId) paths
+          personUniqPathElements = nub $ map (\p -> p !! (kinship - 1)) personPaths -- not-matching previous path element
+          matchingAncestors = nub $ map (\p -> p !! kinship) personPaths -- matching ancestors
+          siblingsOfKinshipPaths = filter (\p -> length p >= (kinship + 1) &&
+                 let notMatchingPathElement = p !! (kinship - 1)
+                     matchingAncestor = p !! (kinship) in
+                       elem matchingAncestor matchingAncestors &&
+                       notElem notMatchingPathElement personUniqPathElements) paths
+        in nub $ map head siblingsOfKinshipPaths
+
+
+
+
+
+
+
 
 
 

@@ -33,6 +33,10 @@ type Children = Children
     , childrenWithSpouse : List Person
     }
 
+comparatorByAge : Person -> Person -> Order
+comparatorByAge p1 p2 =
+  compare (Maybe.withDefault "" p1.birthday) (Maybe.withDefault "" p2.birthday)
+
 
 getMother : Person -> Maybe Person
 getMother person =
@@ -48,9 +52,8 @@ getSpouse (Children children) =
 
 getChildren : Children -> List Person
 getChildren (Children children) =
-    let comparePersons p1 p2 =
-        compare (Maybe.withDefault "" p1.birthday) (Maybe.withDefault "" p2.birthday) in
-    List.sortWith comparePersons <| children.childrenWithSpouse
+  List.sortWith comparatorByAge <| children.childrenWithSpouse
+
 
 
 baseUrl : String
@@ -87,6 +90,19 @@ getPersonTree personId jwt msg =
         , headers = [ Http.header "jwt" jwt ]
         , body = Http.emptyBody
         , expect = Http.expectJson personDecoder
+        , timeout = Nothing
+        , withCredentials = False
+        }
+        |> Http.send msg
+
+getPersonSiblings : Int -> Jwt -> (Result Http.Error (List (List Person)) -> msg) -> Cmd msg
+getPersonSiblings personId jwt msg =
+    Http.request
+        { method = "GET"
+        , url = baseUrl ++ "/person/" ++ toString personId ++ "/siblings"
+        , headers = [ Http.header "jwt" jwt ]
+        , body = Http.emptyBody
+        , expect = Http.expectJson (JsonD.list (JsonD.list personDecoder))
         , timeout = Nothing
         , withCredentials = False
         }

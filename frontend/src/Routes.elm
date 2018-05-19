@@ -10,6 +10,7 @@ import Json.Decode as Json
 
 type Route
     = PersonTreePage Int
+    | PersonSiblingsPage Int
     | LoginPage
 
 
@@ -17,6 +18,7 @@ routeParser : Parser (Route -> a) a
 routeParser =
     UrlParser.oneOf
         [ UrlParser.map PersonTreePage (s "person" </> int </> s "tree")
+        , UrlParser.map PersonSiblingsPage (s "person" </> int </> s "siblings")
         , UrlParser.map LoginPage (s "login")
         , UrlParser.map LoginPage (s "")
         ]
@@ -34,6 +36,9 @@ encode route =
 
         PersonTreePage i ->
             "/person/" ++ toString i ++ "/tree"
+
+        PersonSiblingsPage i ->
+            "/person/" ++ toString i ++ "/siblings"
 
         LoginPage ->
             "/login"

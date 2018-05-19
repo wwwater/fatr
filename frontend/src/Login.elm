@@ -99,7 +99,8 @@ view : Model -> Html Msg
 view model =
     div [ pageStyle
         , style [ ("flex-direction", "column")
-                , ("align-items", "center") ]
+                , ("align-items", "center")
+                , ("justify-content", "center") ]
         ]
         [ input [ style [ ("width", "400px")
                         , ("background-color", "#eee")
@@ -127,5 +128,6 @@ view model =
                  , onClick SubmitCredentials ]
             [ text "Войти" ]
         , drawError model
+        , treeBackground
         ]
 

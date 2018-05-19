@@ -17,15 +17,18 @@ formStyle = style [
 pageStyle : Attribute msg
 pageStyle = style [
       ("display", "flex")
+    , ("flex-direction", "column")
     , ("font-size", "12px")
     , ("font-weight", "bold")
     , ("padding", "20px 0")
     , ("margin-left", "auto")
     , ("margin-right", "auto")
+    , ("flex-grow", "1")
+    , ("padding-top", "80px") -- menu
     ]
 
-treePageContentStyle : Attribute msg
-treePageContentStyle = style [
+treeStyle : Attribute msg
+treeStyle = style [
       ("display", "flex")
     , ("flex-direction", "column")
     , ("flex-grow", "1")
