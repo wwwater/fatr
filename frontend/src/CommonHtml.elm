@@ -1,8 +1,16 @@
 module CommonHtml       exposing (..)
 
 import Html             exposing (..)
-import Html.Attributes  exposing ( style, id, class, src )
-import Html.Events      exposing ( on, keyCode )
+import Html.Attributes  exposing ( style
+                                 , id
+                                 , class
+                                 , src
+                                 , title
+                                 )
+import Html.Events      exposing ( on
+                                 , keyCode
+                                 , onClick
+                                 )
 
 import Json.Decode      as Json
 import Char             exposing (fromCode)
@@ -33,6 +41,13 @@ drawBarePerson maybePerson =
 
                 ]
         Nothing -> div [] [ text "?" ]
+
+drawPersonBox : Maybe Person -> List (Attribute msg) -> (Int -> msg) -> Html msg
+drawPersonBox maybePerson personStyles action =
+  div ([ onClick (action <| Maybe.withDefault 0 <| Maybe.map .id maybePerson)
+      , title "Информация" ] ++ personStyles)
+      [ drawBarePerson maybePerson ]
+
 
 
 treeBackground : Html msg

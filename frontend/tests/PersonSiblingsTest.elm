@@ -10,6 +10,8 @@ import PersonSiblings
 import TestUtils            exposing (..)
 import ServerApi            exposing (Person)
 
+import PersonInfoDialog
+
 
 all : Test
 all =
@@ -31,4 +33,8 @@ all =
         ]
 
 testModel : PersonSiblings.Model
-testModel = PersonSiblings.Model [[testPerson], [], [testPerson, testPerson], []] Nothing
+testModel =
+  PersonSiblings.Model
+    [[testPerson], [], [testPerson, testPerson], []]
+    PersonInfoDialog.init
+    Nothing

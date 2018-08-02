@@ -5,7 +5,6 @@ import Html.Attributes  exposing (..)
 import Html
 import Navigation
 
-
 import PersonTree
 import PersonSiblings
 import Login
@@ -77,12 +76,14 @@ update msg model =
     case msg of
 
         PersonTreeMsg m ->
-            let ( subMdl, subCmd ) = PersonTree.update m model.personTreeModel
+            let ( subMdl, subCmd ) =
+                PersonTree.update m (Maybe.withDefault "" model.jwt) model.personTreeModel
             in { model | personTreeModel = subMdl } !
                 [ Cmd.map PersonTreeMsg subCmd, drawConnections subMdl.connections ]
 
         PersonSiblingsMsg m ->
-            let ( subMdl, subCmd ) = PersonSiblings.update m model.personSiblingsModel
+            let ( subMdl, subCmd ) =
+                PersonSiblings.update m (Maybe.withDefault "" model.jwt) model.personSiblingsModel
             in { model | personSiblingsModel = subMdl } !
                 [ Cmd.map PersonSiblingsMsg subCmd ]
 
@@ -161,7 +162,6 @@ view model =
           else div [] []
         , contentView model
         ]
-
 
 
 contentView : Model -> Html Msg

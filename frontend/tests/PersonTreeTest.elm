@@ -10,6 +10,8 @@ import PersonTree
 import TestUtils            exposing (..)
 import ServerApi            exposing (Person)
 
+import PersonInfoDialog
+
 
 all : Test
 all =
@@ -37,4 +39,4 @@ all =
         ]
 
 testModel : Maybe Person -> PersonTree.Model
-testModel maybePerson  = PersonTree.Model maybePerson [] Nothing
+testModel maybePerson  = PersonTree.Model maybePerson [] PersonInfoDialog.init Nothing

@@ -8,35 +8,37 @@ module PersonTree       exposing ( Model
 
 import Html             exposing (..)
 import Html.Attributes  exposing ( style, class, title, id )
-import Html.Events      exposing ( onClick )
 import Http
 
 import Global           exposing ( handleServerError
                                  , onlyUpdateModel
                                  )
 import ServerApi        exposing (..)
-import Routes
 import Styles           exposing (..)
 import CommonHtml       exposing (..)
 import ConnectionsUtil  exposing (..)
+
+import PersonInfoDialog
 
 
 
 type alias Model =
   { person : Maybe Person
   , connections : List (Int, Int)
+  , personInfoDialogModel : PersonInfoDialog.Model
   , error : Maybe String
   }
 
 
 type Msg
   = HandlePersonRetrieved (Result Http.Error Person)
-  | GoToPersonTree Int
+  | PersonInfoDialogMsg PersonInfoDialog.Msg
+  | ShowPersonInfo Int
 
 
 init : Model
 init =
-  Model Nothing [] Nothing
+  Model Nothing [] PersonInfoDialog.init Nothing
 
 
 mountCmd : Int -> Jwt -> Cmd Msg
@@ -44,8 +46,8 @@ mountCmd personId jwt =
   ServerApi.getPersonTree personId jwt HandlePersonRetrieved
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
-update action model =
+update : Msg -> Jwt -> Model -> ( Model, Cmd Msg )
+update action jwt model =
   case action of
     HandlePersonRetrieved res ->
       case res of
@@ -55,8 +57,16 @@ update action model =
 
         Result.Err err ->
           handleServerError { model | person = Nothing, connections = [] } err
-    GoToPersonTree id -> ( { model | connections = [] }
-                         , Routes.navigate (Routes.PersonTreePage id) )
+
+    PersonInfoDialogMsg m ->
+      let ( subMdl, subCmd ) = PersonInfoDialog.update m model.personInfoDialogModel
+        in { model | personInfoDialogModel = subMdl } !
+            [ Cmd.map PersonInfoDialogMsg subCmd ]
+
+    ShowPersonInfo personId ->
+      model ! [ Cmd.map PersonInfoDialogMsg <| PersonInfoDialog.mountCmd personId jwt ]
+
+
 
 
 
@@ -67,11 +77,7 @@ drawChild child =
       , class "person"
       ]
       [ drawDescendants child
-      , div [ personBoxStyle child.birthday
-            , onClick (GoToPersonTree child.id)
-            , title "Построить древо" ]
-            [ drawBarePerson (Just child) ]
-
+      , drawPersonBox (Just child) [personBoxStyle child.birthday] ShowPersonInfo
       ]
 
 drawDescendants : Person -> Html Msg
@@ -85,11 +91,8 @@ drawDescendants person =
               , class "children-with-spouse"
               ]
               [ div [ branchesStyle ]
-                      (List.map drawChild children)
-              , div [ spouseStyle
-                    , onClick (GoToPersonTree <| Maybe.withDefault 0 <| Maybe.map .id spouse)
-                    , title "Построить древо" ]
-                    [ drawBarePerson spouse ]
+                    (List.map drawChild children)
+              , drawPersonBox spouse [spouseStyle] ShowPersonInfo
               ]
   in
     div [ branchesStyle ]
@@ -103,11 +106,7 @@ drawAncestor maybePerson =
       div [ personWithOthersStyle
           , class "person"
           ]
-          [ div [ personBoxStyle person.birthday
-                , onClick (GoToPersonTree person.id)
-                , title "Построить древо"
-                ]
-                [ drawBarePerson maybePerson ]
+          [ drawPersonBox maybePerson [personBoxStyle person.birthday] ShowPersonInfo
           , drawAncestors person
           ]
     Nothing -> div [] []
@@ -136,11 +135,13 @@ drawTree maybePerson =
                 , style [ ("margin-right", "0") ]
                 ]
                 [ drawDescendants person ]
-          , div [ personBoxStyle person.birthday
-                , style [ ("border", "3px dotted #eee") ]
-                , class "person"
-                ]
-                [ drawBarePerson maybePerson ]
+          , drawPersonBox
+              maybePerson
+              [ personBoxStyle person.birthday
+              , style [ ("border", "3px dotted #eee") ]
+              , class "person"
+              ]
+              ShowPersonInfo
           , drawAncestors person
           ]
     Nothing -> div [] []
@@ -157,4 +158,5 @@ view model =
       , div [ style [("flex-grow", "3") ] ] []
       , drawTree model.person
       , div [ style [("flex-grow", "1") ] ] []
+      , Html.map PersonInfoDialogMsg <| PersonInfoDialog.view model.personInfoDialogModel
       ]
