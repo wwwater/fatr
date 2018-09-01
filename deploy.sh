@@ -1,5 +1,9 @@
 #!/bin/bash
 
+#user=daria
+#host=46.101.142.224
+user=daria
+host=188.246.227.172
 
 function deploy_frontend() {
     echo -e "Deploying frontend\n"
@@ -10,7 +14,7 @@ function deploy_frontend() {
     then
         npm run build
         sed -i s'|http://localhost:8081|https://ourfamilytree.site/api|' dist/index.js
-        scp -r dist 46.101.142.224:~/fatr/frontend/
+        scp -r dist $user@$host:~/fatr/frontend/
     else
         echo "Tests failed. Not deploying anything! :)"
     fi
@@ -27,8 +31,8 @@ function deploy_backend() {
         stack image container
         echo "Saving docker image as a tar. Could take a while.."
         docker save fatr-backend | gzip > fatr-backend.tar.gz
-        scp fatr-backend.tar.gz 46.101.142.224:~/fatr/
-        ssh 46.101.142.224 "
+        scp fatr-backend.tar.gz $user@$host:~/fatr/
+        ssh $user@$host "
             cd fatr;
             gzip -df fatr-backend.tar.gz;
             echo 'Loading docker image from tar file. Could take a while..';
@@ -43,12 +47,12 @@ function deploy_backend() {
 function backup_database() {
     echo -e "Backup database from server on dropbox\n"
     today=`date +"%Y-%m-%d"`
-    scp 46.101.142.224:~/fatr/db/fatr.db ~/Dropbox/backup/digital_ocean/fatr_"$today".db
+    scp $user@$host:~/fatr/db/fatr.db ~/Dropbox/backup/digital_ocean/fatr_"$today".db
 }
 
 function copy_database() {
     echo -e "Copy database to server from local machine\n"
-    scp backend/db/fatr.db 46.101.142.224:~/fatr/db
+    scp backend/db/fatr.db $user@$host:~/fatr/db
 }
 
 if [[ $# -eq 0 ]] 
