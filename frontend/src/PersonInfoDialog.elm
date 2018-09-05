@@ -3,6 +3,8 @@ module PersonInfoDialog exposing (Model, Msg, init, view, update, mountCmd)
 import Html             exposing (..)
 import Html.Attributes  exposing ( style
                                  , class
+                                 , src
+                                 , alt
                                  )
 import Html.Events      exposing ( onClick )
 import Http
@@ -69,7 +71,16 @@ drawPersonName person =
 
 drawPersonInfo : Person -> Html Msg
 drawPersonInfo person =
-  text <| formatDates person
+  div [ style [ ("display", "flex")
+              , ("flex-direction", "column")
+              ] ]
+      [ img [ src <| "/assets/photo/" ++ (toString person.id) ++ ".png"
+            , alt "[Фотография]"
+            , style [ ("width", "300px") ]
+            ]
+            []
+      , text <| formatDates person
+      ]
 
 drawButtons : Person -> Html Msg
 drawButtons person =
