@@ -7,7 +7,7 @@ backend/.cabal-sandbox
 backend/cabal.sandbox.config
 backend/dist
 backend/*.tix
-backend/db/*.sql
+backend/db
 *.swp
 *.swo
 *.log

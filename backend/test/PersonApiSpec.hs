@@ -72,6 +72,7 @@ spec = beforeAll testConnect $
          \\"children\":[],\
          \\"birthday\":null,\
          \\"parents\":{\"father\":null,\"mother\":null},\
+         \\"about\":\"Great physicist\",\
          \\"id\":1,\
          \\"surname\":\"Planck\"}"
         {matchStatus = 200}
@@ -111,6 +112,7 @@ spec = beforeAll testConnect $
                                    \\"parents\":\
                                     \{\"father\":null,\
                                      \\"mother\":null},\
+                                   \\"about\":null,\
                                    \\"id\":5,\
                                    \\"surname\":\"Planck\"}]}],\
            \\"birthday\":null,\
@@ -121,9 +123,11 @@ spec = beforeAll testConnect $
                          \\"children\":[],\
                          \\"birthday\":null,\
                          \\"parents\":{\"father\":null,\"mother\":null},\
+                         \\"about\":null,\
                          \\"id\":3,\
                          \\"surname\":\"Planck\"},\
              \\"mother\":null},\
+           \\"about\":null,\
            \\"id\":1,\
            \\"surname\":\"Planck\"}"
           {matchStatus = 200}
@@ -157,6 +161,7 @@ spec = beforeAll testConnect $
            \\"children\":[],\
            \\"birthday\":null,\
            \\"parents\":{\"father\":null,\"mother\":null},\
+           \\"about\":null,\
            \\"id\":1,\
            \\"surname\":\"Planck\"}]"
           {matchStatus = 200}
@@ -189,6 +194,7 @@ spec = beforeAll testConnect $
            \\"children\":[],\
            \\"birthday\":null,\
            \\"parents\":{\"father\":null,\"mother\":null},\
+           \\"about\":null,\
            \\"id\":5,\
            \\"surname\":\"Planck\"}],\
            \[],\
@@ -198,6 +204,7 @@ spec = beforeAll testConnect $
            \\"children\":[],\
            \\"birthday\":null,\
            \\"parents\":{\"father\":null,\"mother\":null},\
+           \\"about\":null,\
            \\"id\":7,\
            \\"surname\":\"Planck\"}],[]]"
           {matchStatus = 200}
@@ -205,8 +212,8 @@ spec = beforeAll testConnect $
 addTestPerson :: Sql.Connection -> IO ()
 addTestPerson connection = do
     Sql.execute_ connection
-      "INSERT INTO person (id, givenName, surname, parents, children) VALUES \
-      \(1, 'Max', 'Planck', '{\"motherId\":2,\"fatherId\":3}', '[{\"spouseId\":4, \"childrenIds\":[5]}]')"
+      "INSERT INTO person (id, givenName, surname, parents, children, about) VALUES \
+      \(1, 'Max', 'Planck', '{\"motherId\":2,\"fatherId\":3}', '[{\"spouseId\":4, \"childrenIds\":[5]}]', 'Great physicist')"
     Sql.execute_ connection
       "INSERT INTO person (id, givenName, surname, parents, children) VALUES \
       \(3, 'Johann', 'Planck', '', '[{\"spouseId\":2, \"childrenIds\":[1,6]}]')"

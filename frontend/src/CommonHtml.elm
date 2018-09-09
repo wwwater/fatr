@@ -70,13 +70,17 @@ treeBackground =
             []
       ]
 
+formatDate : String -> String
+formatDate d =
+  String.join "." <| List.reverse <| String.split "-" d
+
 
 formatDates : Person -> String
 formatDates person =
-    let birth = Maybe.withDefault "?" person.birthday
+    let birth = formatDate <| Maybe.withDefault "?" person.birthday
         death = Maybe.withDefault "" <| Maybe.map (\d ->
           String.fromChar (Char.fromCode 0xA0)  -- nbsp
-          ++ "| " ++ d) person.deathday in
+          ++ "| " ++ (formatDate d)) person.deathday in
         birth ++ death
 
 displayAsSearchEntry : Person -> String

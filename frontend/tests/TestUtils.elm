@@ -12,6 +12,7 @@ testPerson = Person
     (Just "1947-10-4")
     (Parents { mother = Nothing, father = Nothing })
     []
+    (Just "Hello there")
 
 testParents : Parents
 testParents =
@@ -43,3 +44,4 @@ testPersonWithAll = Person
     (Just "1947-10-4")
     testParents
     [testChildren]
+    Nothing

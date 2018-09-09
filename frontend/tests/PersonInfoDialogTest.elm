@@ -28,6 +28,18 @@ all =
                     |> Query.fromHtml
                     |> Query.findAll [ tag "button" ]
                     |> Query.count (Expect.equal 3)
+            , test "dialog has img" <|
+                \() ->
+                    PersonInfoDialog.view (testModel True)
+                    |> Query.fromHtml
+                    |> Query.findAll [ tag "img" ]
+                    |> Query.count (Expect.equal 1)
+            , test "dialog has about-person text" <|
+                \() ->
+                    PersonInfoDialog.view (testModel True)
+                    |> Query.fromHtml
+                    |> Query.has
+                        [ text <| Maybe.withDefault "" <| testPerson.about]
             ]
         ]
 

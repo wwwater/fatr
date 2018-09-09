@@ -2,6 +2,7 @@ module ServerApi exposing (..)
 
 import Json.Decode as JsonD
 import Json.Encode as JsonE
+import Json.Decode.Pipeline as JsonPipeline
 import Http
 
 
@@ -21,6 +22,7 @@ type alias Person =
     , deathday : Maybe String
     , parents : Parents
     , children : List Children
+    , about : Maybe String
     }
 
 type Parents = Parents
@@ -82,6 +84,19 @@ searchPersons searchString jwt msg =
         }
         |> Http.send msg
 
+getPersonWithAbout : Int -> Jwt -> (Result Http.Error Person -> msg) -> Cmd msg
+getPersonWithAbout personId jwt msg =
+    Http.request
+        { method = "GET"
+        , url = baseUrl ++ "/person/" ++ toString personId
+        , headers = [ Http.header "jwt" jwt ]
+        , body = Http.emptyBody
+        , expect = Http.expectJson personDecoder
+        , timeout = Nothing
+        , withCredentials = False
+        }
+        |> Http.send msg
+
 getPersonTree : Int -> Jwt -> (Result Http.Error Person -> msg) -> Cmd msg
 getPersonTree personId jwt msg =
     Http.request
@@ -122,15 +137,16 @@ jwtDecoder = JsonD.field "token" JsonD.string
 
 personDecoder : JsonD.Decoder Person
 personDecoder =
-    JsonD.map8 Person
-        (JsonD.field "id" JsonD.int)
-        (JsonD.field "givenName" (JsonD.maybe JsonD.string))
-        (JsonD.field "surname" (JsonD.maybe JsonD.string))
-        (JsonD.field "patronymic" (JsonD.maybe JsonD.string))
-        (JsonD.field "birthday" (JsonD.maybe JsonD.string))
-        (JsonD.field "deathday" (JsonD.maybe JsonD.string))
-        (JsonD.field "parents" (JsonD.lazy (\_ -> parentsDecoder)))
-        (JsonD.field "children" (JsonD.lazy (\_ -> JsonD.list childrenDecoder)))
+  JsonPipeline.decode Person
+    |> JsonPipeline.required "id" JsonD.int
+    |> JsonPipeline.required "givenName" (JsonD.nullable JsonD.string)
+    |> JsonPipeline.required "surname" (JsonD.nullable JsonD.string)
+    |> JsonPipeline.required "patronymic" (JsonD.nullable JsonD.string)
+    |> JsonPipeline.required "birthday" (JsonD.nullable JsonD.string)
+    |> JsonPipeline.required "deathday" (JsonD.nullable JsonD.string)
+    |> JsonPipeline.required "parents" (JsonD.lazy (\_ -> parentsDecoder))
+    |> JsonPipeline.required "children" (JsonD.lazy (\_ -> JsonD.list childrenDecoder))
+    |> JsonPipeline.required "about" (JsonD.nullable JsonD.string)
 
 parentsDecoder : JsonD.Decoder Parents
 parentsDecoder =

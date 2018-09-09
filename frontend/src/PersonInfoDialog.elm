@@ -38,7 +38,7 @@ init = Model Nothing False Nothing
 
 mountCmd : Int -> Jwt -> Cmd Msg
 mountCmd personId jwt =
-  ServerApi.getPersonTree personId jwt HandlePersonRetrieved
+  ServerApi.getPersonWithAbout personId jwt HandlePersonRetrieved
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -72,24 +72,38 @@ drawPersonName person =
 drawPersonInfo : Person -> Html Msg
 drawPersonInfo person =
   div [ style [ ("display", "flex")
-              , ("flex-direction", "column")
+              , ("flex-direction", "row")
+              , ("flex-wrap", "wrap")
+              , ("align-items", "flex-start")
               ] ]
       [ img [ src <| "/assets/photo/" ++ (toString person.id) ++ ".png"
             , alt "[Фотография]"
-            , style [ ("width", "300px") ]
+            , style [ ("max-width", "40%") ]
             ]
             []
-      , text <| formatDates person
+      , div [ style [ ("display", "flex")
+                    , ("flex-direction", "column")
+                    , ("padding", "0 10px")
+                    , ("max-width", "60%")
+                    , ("font-weight", "normal")
+                    ] ]
+            [ div [ style [ ("margin-bottom", "10px") ] ]
+                  [ text <| formatDates person ]
+            , div []
+                  [ text <| Maybe.withDefault "" person.about ]
+            ]
       ]
 
 drawButtons : Person -> Html Msg
 drawButtons person =
   div []
       [ button [ class "btn"
+               , style [ ("margin", "5px") ]
                , onClick <| GoToPersonTree person.id
                ]
                [ text "Построить древо" ]
       , button [ class "btn"
+               , style [ ("margin", "5px") ]
                , onClick <| GoToPersonSiblings person.id
                ]
                [ text "Найти братьев и сестер" ]

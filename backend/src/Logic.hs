@@ -1,5 +1,11 @@
 
-module Logic where
+module Logic (issueJwt,
+             verifyJwtToken,
+             getAboutPersonById,
+             search,
+             getPersonTree,
+             findSiblings
+             ) where
 
 import Crypto.PasswordStore                 (verifyPassword)
 import Data.ByteString.Char8                (pack)
@@ -47,6 +53,11 @@ getPersonById :: Connection -> Int -> IO (Maybe Person)
 getPersonById conn personId = do
   maybePersonDB <- S.selectPersonById conn personId
   return $ fmap toPerson maybePersonDB
+
+getAboutPersonById :: Connection -> Int -> IO (Maybe Person)
+getAboutPersonById conn personId = do
+  maybeAboutPersonDB <- S.selectAboutPersonById conn personId
+  return $ fmap toPersonWithAbout maybeAboutPersonDB
 
 search :: Connection -> String -> IO [Person]
 search conn searchString = do
@@ -218,7 +229,22 @@ toPerson personDB =
            birthday = birthdayDB personDB,
            deathday = deathdayDB personDB,
            parents = Parents Nothing Nothing,
-           children = Children []
+           children = Children [],
+           about = Nothing
+           }
+
+toPersonWithAbout :: AboutPersonDB -> Person
+toPersonWithAbout aboutPersonDB =
+  Person {
+           Model.id = idAboutDB aboutPersonDB,
+           givenName = givenNameAboutDB aboutPersonDB,
+           surname = surnameAboutDB aboutPersonDB,
+           patronymic = patronymicAboutDB aboutPersonDB,
+           birthday = birthdayAboutDB aboutPersonDB,
+           deathday = deathdayAboutDB aboutPersonDB,
+           parents = Parents Nothing Nothing,
+           children = Children [],
+           about = aboutDB aboutPersonDB
            }
 
 addMother :: Person -> Maybe Person -> Person

@@ -44,9 +44,9 @@ type PersonAPI =
 
 personServer :: Connection -> Maybe M.JwtToken -> Server PersonAPI
 personServer conn jwt =
-    getPerson :<|> search :<|> getPersonTree :<|> getPersonSiblings
+    getPersonWithAbout :<|> search :<|> getPersonTree :<|> getPersonSiblings
     where
-      getPerson personId = withJwt jwt $ liftIOMaybeToHandler err404 $ L.getPersonById conn personId
+      getPersonWithAbout personId = withJwt jwt $ liftIOMaybeToHandler err404 $ L.getAboutPersonById conn personId
       search searchString = withJwt jwt $ liftIO $ L.search conn searchString
       getPersonTree personId = withJwt jwt $ liftIOMaybeToHandler err404 $ L.getPersonTree conn personId
       getPersonSiblings personId = withJwt jwt $ liftIO $ L.findSiblings conn personId
