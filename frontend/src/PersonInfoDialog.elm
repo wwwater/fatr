@@ -73,19 +73,22 @@ drawPersonInfo : Person -> Html Msg
 drawPersonInfo person =
   div [ style [ ("display", "flex")
               , ("flex-direction", "row")
-              , ("flex-wrap", "wrap")
               , ("align-items", "flex-start")
+              , ("justify-content", "space-between")
               ] ]
       [ img [ src <| "/assets/photo/" ++ (toString person.id) ++ ".png"
             , alt "[Фотография]"
-            , style [ ("max-width", "40%") ]
-            ]
-            []
+            , style [ ("max-width", "40%")
+                    , ("max-height", "33vh")
+                    ]
+            ] []
       , div [ style [ ("display", "flex")
                     , ("flex-direction", "column")
                     , ("padding", "0 10px")
                     , ("max-width", "60%")
                     , ("font-weight", "normal")
+                    , ("overflow-y", "auto")
+                    , ("max-height", "33vh")
                     ] ]
             [ div [ style [ ("margin-bottom", "10px") ] ]
                   [ text <| formatDates person ]

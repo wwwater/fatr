@@ -4,3 +4,7 @@
 body {
     background-color: #eee;
 }
+
+.close {
+    font-size: 30px;
+}
