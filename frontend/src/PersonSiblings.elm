@@ -114,7 +114,7 @@ drawSiblingsOfKinship (kinship, siblings) =
 
 background : Html msg
 background =
-  img [ src "/assets/siblings4.svg"
+  img [ src "/assets/siblings4.2.svg"
       , style [ ("max-width", "100%")
               , ("opacity", "0.8")
               , ("position", "absolute")
