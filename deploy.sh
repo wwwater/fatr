@@ -50,14 +50,27 @@ function backup_database() {
     scp $user@$host:~/fatr/db/fatr.db ~/Dropbox/backup/digital_ocean/fatr_"$today".db
 }
 
-function copy_database() {
-    echo -e "Copy database to server from local machine\n"
-    scp backend/db/fatr.db $user@$host:~/fatr/db
+function import_database_table() {
+    echo -e "Import data into database on the server from local machine\n"
+    #scp backend/db/fatr.db $user@$host:~/fatr/db
+    scp backend/db/irkutsk_person.csv $user@$host:~/fatr/db
+    ssh $user@$host "
+        cd fatr/db;
+        (
+        echo 'DELETE FROM irkutsk_person;';
+        echo '.mode csv';
+        echo '.import irkutsk_person.csv irkutsk_person';
+        echo 'UPDATE irkutsk_person SET givenName = NULL WHERE givenName = \"\";'
+        echo 'UPDATE irkutsk_person SET surname = NULL WHERE surname = \"\";'
+        echo 'UPDATE irkutsk_person SET patronymic = NULL WHERE patronymic = \"\";'
+        echo 'UPDATE irkutsk_person SET birthday = NULL WHERE birthday = \"\";'
+        echo 'UPDATE irkutsk_person SET deathday = NULL WHERE deathday = \"\";'
+        ) | sqlite3 fatr.db"
 }
 
-if [[ $# -eq 0 ]] 
+if [[ $# -eq 0 ]]
 then
-    echo "An argument --frontend or --backend or --backup-db is needed."
+    echo "An argument --frontend or --backend or --backup-db or --copy-db is needed."
     exit
 fi
 
@@ -77,7 +90,7 @@ do
       shift
       ;;
       -CDB|--copy-db)
-      copy_database
+      import_database_table
       shift
       ;;
       *)

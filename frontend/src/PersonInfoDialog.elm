@@ -95,7 +95,7 @@ drawPersonInfo person =
                     , ("max-width", "60%")
                     , ("font-weight", "normal")
                     , ("overflow-y", "auto")
-                    , ("max-height", "33vh")
+                    , ("max-height", "50vh")
                     ] ]
             [ div [ style [ ("margin-bottom", "10px") ] ]
                   [ text <| formatDates person ]
