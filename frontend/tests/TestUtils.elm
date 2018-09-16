@@ -12,6 +12,7 @@ testPerson = Person
     (Just "1947-10-4")
     (Parents { mother = Nothing, father = Nothing })
     []
+    (Just "/assets/photo/max.png")
     (Just "Hello there")
 
 testParents : Parents
@@ -44,4 +45,5 @@ testPersonWithAll = Person
     (Just "1947-10-4")
     testParents
     [testChildren]
+    Nothing
     Nothing

@@ -22,6 +22,7 @@ type alias Person =
     , deathday : Maybe String
     , parents : Parents
     , children : List Children
+    , photo : Maybe String
     , about : Maybe String
     }
 
@@ -146,6 +147,7 @@ personDecoder =
     |> JsonPipeline.required "deathday" (JsonD.nullable JsonD.string)
     |> JsonPipeline.required "parents" (JsonD.lazy (\_ -> parentsDecoder))
     |> JsonPipeline.required "children" (JsonD.lazy (\_ -> JsonD.list childrenDecoder))
+    |> JsonPipeline.required "photo" (JsonD.nullable JsonD.string)
     |> JsonPipeline.required "about" (JsonD.nullable JsonD.string)
 
 parentsDecoder : JsonD.Decoder Parents

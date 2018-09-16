@@ -67,6 +67,7 @@ spec = beforeAll testConnect $
                 ""
         `shouldRespondWith`
         "{\"givenName\":\"Max\",\
+         \\"photo\":\"/assets/photo/max.png\",\
          \\"deathday\":null,\
          \\"patronymic\":null,\
          \\"children\":[],\
@@ -100,11 +101,13 @@ spec = beforeAll testConnect $
                 ""
         `shouldRespondWith`
           "{\"givenName\":\"Max\",\
+           \\"photo\":null,\
            \\"deathday\":null,\
            \\"patronymic\":null,\
            \\"children\":[{\"spouse\":null,\
                           \\"childrenWithSpouse\":[\
                                   \{\"givenName\":\"Erwinn\",\
+                                   \\"photo\":null,\
                                    \\"deathday\":null,\
                                    \\"patronymic\":null,\
                                    \\"children\":[],\
@@ -118,6 +121,7 @@ spec = beforeAll testConnect $
            \\"birthday\":null,\
            \\"parents\":\
             \{\"father\":{\"givenName\":\"Johann\",\
+                         \\"photo\":null,\
                          \\"deathday\":null,\
                          \\"patronymic\":null,\
                          \\"children\":[],\
@@ -156,6 +160,8 @@ spec = beforeAll testConnect $
                 ""
         `shouldRespondWith`
           "[{\"givenName\":\"Max\",\
+
+           \\"photo\":null,\
            \\"deathday\":null,\
            \\"patronymic\":null,\
            \\"children\":[],\
@@ -189,6 +195,7 @@ spec = beforeAll testConnect $
                 ""
         `shouldRespondWith`
           "[[{\"givenName\":\"Erwinn\",\
+           \\"photo\":null,\
            \\"deathday\":null,\
            \\"patronymic\":null,\
            \\"children\":[],\
@@ -199,6 +206,7 @@ spec = beforeAll testConnect $
            \\"surname\":\"Planck\"}],\
            \[],\
            \[{\"givenName\":\"CousinOfErwinn\",\
+           \\"photo\":null,\
            \\"deathday\":null,\
            \\"patronymic\":null,\
            \\"children\":[],\
@@ -212,8 +220,8 @@ spec = beforeAll testConnect $
 addTestPerson :: Sql.Connection -> IO ()
 addTestPerson connection = do
     Sql.execute_ connection
-      "INSERT INTO irkutsk_person (id, givenName, surname, parents, children, about) VALUES \
-      \(1, 'Max', 'Planck', '{\"motherId\":2,\"fatherId\":3}', '[{\"spouseId\":4, \"childrenIds\":[5]}]', 'Great physicist')"
+      "INSERT INTO irkutsk_person (id, givenName, surname, parents, children, photo, about) VALUES \
+      \(1, 'Max', 'Planck', '{\"motherId\":2,\"fatherId\":3}', '[{\"spouseId\":4, \"childrenIds\":[5]}]', '/assets/photo/max.png', 'Great physicist')"
     Sql.execute_ connection
       "INSERT INTO irkutsk_person (id, givenName, surname, parents, children) VALUES \
       \(3, 'Johann', 'Planck', '', '[{\"spouseId\":2, \"childrenIds\":[1,6]}]')"

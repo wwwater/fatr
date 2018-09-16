@@ -34,6 +34,13 @@ all =
                     |> Query.fromHtml
                     |> Query.findAll [ tag "img" ]
                     |> Query.count (Expect.equal 1)
+            , test "dialog has no img tag if no photo" <|
+                \() ->
+                    PersonInfoDialog.view
+                      (PersonInfoDialog.Model (Just testPersonWithAll) True Nothing)
+                    |> Query.fromHtml
+                    |> Query.findAll [ tag "img" ]
+                    |> Query.count (Expect.equal 0)
             , test "dialog has about-person text" <|
                 \() ->
                     PersonInfoDialog.view (testModel True)

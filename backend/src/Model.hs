@@ -44,6 +44,7 @@ data Person = Person
   , deathday :: Maybe String
   , parents :: Parents
   , children :: Children
+  , photo :: Maybe String
   , about :: Maybe String
   } deriving (Generic)
 
@@ -81,6 +82,7 @@ data AboutPersonDB = AboutPersonDB
   , patronymicAboutDB :: Maybe String
   , birthdayAboutDB :: Maybe String
   , deathdayAboutDB :: Maybe String
+  , photoDB :: Maybe String
   , aboutDB :: Maybe String
   } deriving (Generic)
 
@@ -101,7 +103,7 @@ instance FromRow PersonDB where
   fromRow = PersonDB <$> field <*> field <*> field <*> field <*> field <*> field <*> field <*> field
 
 instance FromRow AboutPersonDB where
-  fromRow = AboutPersonDB <$> field <*> field <*> field <*> field <*> field <*> field <*> field
+  fromRow = AboutPersonDB <$> field <*> field <*> field <*> field <*> field <*> field <*> field <*> field
 
 instance FromField ParentsDB where
   fromField (Field (SQLText str) _) = Ok $

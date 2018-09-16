@@ -1,4 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
+
 module Storage where
 
 
@@ -35,6 +36,7 @@ createSchema conn = do
             \deathday VARCHAR2(31),\
             \parents VARCHAR2(255),\
             \children VARCHAR2(255),\
+            \photo VARCHAR2(255),\
             \about TEXT)"
   executeDB "CREATE TABLE IF NOT EXISTS user \
             \(name VARCHAR2(255) PRIMARY KEY, password TEXT)"
@@ -55,7 +57,7 @@ selectPersonById conn user personId = do
 selectAboutPersonById :: Connection -> String -> Int -> IO (Maybe M.AboutPersonDB)
 selectAboutPersonById conn user personId = do
   let queryWithTableName = case user of
-        "irkutsk" -> "SELECT id, givenName, surname, patronymic, birthday, deathday, about FROM irkutsk_person WHERE id = ?"
+        "irkutsk" -> "SELECT id, givenName, surname, patronymic, birthday, deathday, photo, about FROM irkutsk_person WHERE id = ?"
         _ -> error ("Table person for user " ++ user ++ " does not exist")
   result <- (query conn queryWithTableName (Only personId) :: IO [M.AboutPersonDB])
   case (length result) of

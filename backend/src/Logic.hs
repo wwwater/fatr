@@ -26,6 +26,7 @@ defaultJwtSecret :: String
 defaultJwtSecret = "jwt-secret"
 
 
+
 issueJwt :: Connection -> Credentials -> IO (Maybe Jwt)
 issueJwt conn credentials =
   let user = map toLower $ username credentials
@@ -230,6 +231,7 @@ toPerson personDB =
            deathday = deathdayDB personDB,
            parents = Parents Nothing Nothing,
            children = Children [],
+           photo = Nothing,
            about = Nothing
            }
 
@@ -244,6 +246,7 @@ toPersonWithAbout aboutPersonDB =
            deathday = deathdayAboutDB aboutPersonDB,
            parents = Parents Nothing Nothing,
            children = Children [],
+           photo = photoDB aboutPersonDB,
            about = aboutDB aboutPersonDB
            }
 
