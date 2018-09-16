@@ -26,7 +26,7 @@ addTestUserToDB :: Sql.Connection -> IO()
 addTestUserToDB connection = do
   Storage.createSchema connection
   hash <- makePassword "testpassword" 17
-  Sql.executeNamed connection "INSERT INTO user (name, password) VALUES ('test', :hash)"
+  Sql.executeNamed connection "INSERT INTO user (name, password) VALUES ('irkutsk', :hash)"
     [":hash" Sql.:= decodeUtf8 hash]
 
 createCredentialsJson :: String -> String -> BL.ByteString
@@ -45,7 +45,7 @@ makeJwtRequest = request
   "POST"
   "/jwt"
   [("Content-Type", "application/json")]
-  (createCredentialsJson "test" "testPassword")
+  (createCredentialsJson "irkutsk" "testPassword")
 
 addUserAndCheck :: Sql.Connection -> WaiSession () -> IO ()
 addUserAndCheck connection action = do

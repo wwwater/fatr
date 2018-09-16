@@ -28,13 +28,14 @@ type alias Model =
 type Msg
     = HandleJwtReceived (Result Http.Error Jwt)
     | ChangePassword String
+    | ChangeUser String
     | SubmitCredentials
     | None
 
 
 init : Model
 init =
-    Model { username = "user", password = "" } Nothing
+    Model { username = "", password = "" } Nothing
 
 
 mountCmd : Cmd Msg
@@ -48,7 +49,7 @@ update action model cameFromLogin =
             case res of
                 Result.Ok jwt ->
                     let _ = Debug.log "Received jwt" jwt in
-                    ( { model | credentials = { username = "user", password = "" } }
+                    ( { model | credentials = { username = "", password = "" } }
                     , if cameFromLogin
                       then Routes.navigate (Routes.PersonTreePage 0)
                       else Navigation.back 1
@@ -58,11 +59,18 @@ update action model cameFromLogin =
                 Result.Err err ->
                     let _ = Debug.log "Error getting jwt" err in
                     ( { model |
-                          credentials = { username = "user", password = "" }
-                        , error = Just "Наверное, это был неправильный ответ на вопрос(ᵔᴥᵔ)" }
+                          credentials = { username = "", password = "" }
+                        , error = Just "Наверное, это были неправильныe город и река (ᵔᴥᵔ)" }
                     , Cmd.none
                     , Global.RemoveJwt
                     )
+
+        ChangeUser newUser ->
+            let creds = model.credentials in
+            ( { model | credentials = { creds | username = newUser } }
+            , Cmd.none
+            , Global.None
+            )
 
         ChangePassword newPassword ->
             let creds = model.credentials in
@@ -109,14 +117,26 @@ view model =
                         , ("box-shadow", "inset 2px 2px 5px 0 #bbb")
                         , ("margin-bottom", "20px") ]
                 , formStyle
-                , type_ "password"
-                , value model.credentials.password
-                , placeholder "Остановка электрички, где у мамы дача"
+                , type_ "text"
+                , value model.credentials.username
+                , placeholder "Город (латинскими буквами)"
                 , maxlength 100
                 , autofocus True
+                , onInput ChangeUser ] []
+        , input [ style [ ("width", "400px")
+                        , ("background-color", "#eee")
+                        , ("color", "#333")
+                        , ("text-align", "center")
+                        , ("box-shadow", "inset 2px 2px 5px 0 #bbb")
+                        , ("margin-bottom", "20px") ]
+                , formStyle
+                , type_ "password"
+                , value model.credentials.password
+                , placeholder "Река (латинскими буквами)"
+                , maxlength 100
                 , onKeyUp (\k ->
                     case k of
-                        13 -> SubmitCredentials
+                        13 -> SubmitCredentials -- enter
                         _ -> None)
                 , onInput ChangePassword ] []
         , button [ style [ ("width", "200px")

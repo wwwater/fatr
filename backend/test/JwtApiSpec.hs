@@ -32,7 +32,7 @@ spec = beforeAll testConnect $
         request "POST"
                 "/jwt"
                 [("Content-Type", "application/json")]
-                (createCredentialsJson "test" "testPassword")
+                (createCredentialsJson "irkutsk" "testPassword")
             `shouldRespondWith` 200
 
     it "returns an error if user does not exist" $ \connection ->
@@ -48,6 +48,6 @@ spec = beforeAll testConnect $
         request "POST"
                 "/jwt"
                 [("Content-Type", "application/json")]
-                (createCredentialsJson "test" "wrongPassword")
+                (createCredentialsJson "irkutsk" "wrongPassword")
             `shouldRespondWith` 401
 

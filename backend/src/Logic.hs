@@ -1,6 +1,6 @@
 
 module Logic (issueJwt,
-             verifyJwtToken,
+             getUserFromValidJwt,
              getAboutPersonById,
              search,
              getPersonTree,
@@ -17,7 +17,7 @@ import Database.SQLite.Simple               (Connection)
 import System.Environment                   (lookupEnv)
 
 
-import Jwt                                  (createJwt, verifyJwt)
+import Jwt                                  (createJwt, getUserIfValidJwt)
 import Model
 import qualified Storage as S
 
@@ -28,7 +28,7 @@ defaultJwtSecret = "jwt-secret"
 
 issueJwt :: Connection -> Credentials -> IO (Maybe Jwt)
 issueJwt conn credentials =
-  let user = username credentials
+  let user = map toLower $ username credentials
       passwordProvided = map toLower $ password credentials in do
   maybePasswordHash <- S.getUserPassword conn user
   case maybePasswordHash of
@@ -37,53 +37,53 @@ issueJwt conn credentials =
         then do
           jwtSecret <- lookupEnv "JWT_SECRET"
           let secret = fromMaybe defaultJwtSecret jwtSecret in
-            fmap (Just . Jwt . unpack) $ createJwt secret
+            fmap (Just . Jwt . unpack) $ createJwt secret user
         else return Nothing
     Nothing -> return Nothing
 
-verifyJwtToken :: JwtToken -> IO Bool
-verifyJwtToken jwtToken = do
+getUserFromValidJwt :: JwtToken -> IO (Maybe String)
+getUserFromValidJwt jwtToken = do
   jwtSecret <- lookupEnv "JWT_SECRET"
   let secret = fromMaybe defaultJwtSecret jwtSecret
-  verifyJwt secret jwtToken
+  getUserIfValidJwt secret jwtToken
 
 
 
-getPersonById :: Connection -> Int -> IO (Maybe Person)
-getPersonById conn personId = do
-  maybePersonDB <- S.selectPersonById conn personId
+getPersonById :: Connection -> String -> Int -> IO (Maybe Person)
+getPersonById conn user personId = do
+  maybePersonDB <- S.selectPersonById conn user personId
   return $ fmap toPerson maybePersonDB
 
-getAboutPersonById :: Connection -> Int -> IO (Maybe Person)
-getAboutPersonById conn personId = do
-  maybeAboutPersonDB <- S.selectAboutPersonById conn personId
+getAboutPersonById :: Connection -> String -> Int -> IO (Maybe Person)
+getAboutPersonById conn user personId = do
+  maybeAboutPersonDB <- S.selectAboutPersonById conn user personId
   return $ fmap toPersonWithAbout maybeAboutPersonDB
 
-search :: Connection -> String -> IO [Person]
-search conn searchString = do
-  persons <- S.search conn searchString
+search :: Connection -> String -> String -> IO [Person]
+search conn user searchString = do
+  persons <- S.search conn user searchString
   return $ fmap toPerson persons
 
-getPersonTree :: Connection -> Int -> IO (Maybe Person)
-getPersonTree conn personId = do
-    withAncestors <- getAncestors conn personId
-    withDescendants <- getDescendants conn personId
+getPersonTree :: Connection -> String -> Int -> IO (Maybe Person)
+getPersonTree conn user personId = do
+    withAncestors <- getAncestors conn user personId
+    withDescendants <- getDescendants conn user personId
     return $ mergePerson withAncestors withDescendants
 
 
-getAncestors :: Connection -> Int -> IO (Maybe Person)
-getAncestors conn personId = do
-  maybePersonDB <- S.selectPersonById conn personId
+getAncestors :: Connection -> String -> Int -> IO (Maybe Person)
+getAncestors conn user personId = do
+  maybePersonDB <- S.selectPersonById conn user personId
   case maybePersonDB of
     Just personDB ->
       let person = toPerson personDB
           maybeMotherId = (motherId . parentsDB) personDB
           maybeFatherId = (fatherId . parentsDB) personDB
           maybeMotherIO = case maybeMotherId of
-              Just mId -> getAncestors conn mId
+              Just mId -> getAncestors conn user mId
               Nothing -> return Nothing
           maybeFatherIO = case maybeFatherId of
-              Just fId -> getAncestors conn fId
+              Just fId -> getAncestors conn user fId
               Nothing -> return Nothing
           in do
             maybeMother <- maybeMotherIO
@@ -93,9 +93,9 @@ getAncestors conn personId = do
             return $ Just withParents
     Nothing -> return Nothing
 
-getDescendants :: Connection -> Int -> IO (Maybe Person)
-getDescendants conn personId = do
-  maybePersonDB <- S.selectPersonById conn personId
+getDescendants :: Connection -> String -> Int -> IO (Maybe Person)
+getDescendants conn user personId = do
+  maybePersonDB <- S.selectPersonById conn user personId
   case maybePersonDB of
     Just personDB -> do
       let person = toPerson personDB
@@ -109,7 +109,7 @@ getDescendants conn personId = do
     getAndAddChildrenWithSpouse :: IO Person -> ChildrenWithSpouseDB -> IO Person
     getAndAddChildrenWithSpouse personIO childrenWithSpouseDB =
       let maybeSpouseIO = case spouseId childrenWithSpouseDB of
-            Just sId -> getPersonById conn sId
+            Just sId -> getPersonById conn user sId
             Nothing -> return Nothing
           childrenWithSpouseIds = childrenIds childrenWithSpouseDB
           childrenIO = foldl getAndAddChild (return []) childrenWithSpouseIds
@@ -121,7 +121,7 @@ getDescendants conn personId = do
 
     getAndAddChild :: IO ([Person]) -> Int -> IO ([Person])
     getAndAddChild childrenListIO childId = do
-      maybeChild <- getDescendants conn childId
+      maybeChild <- getDescendants conn user childId
       childrenList <- childrenListIO
       case maybeChild of
         Just child -> return $ child:childrenList
@@ -134,13 +134,13 @@ getDescendants conn personId = do
 -- 1. find all paths of all descendants of the persons deepest ancestors
 -- 2. divide all these siblings into groups by kinship
 -- 3. convert siblings ids to persons
-findSiblings :: Connection -> Int -> IO [[Person]]
-findSiblings conn pId = do
+findSiblings :: Connection -> String -> Int -> IO [[Person]]
+findSiblings conn user pId = do
   siblingsPaths <- collectSameLevelSiblings pId 0 []
   let maxDepth = maximum $ map length siblingsPaths
   let siblingsIds = [pId] : map (\d -> filterSiblingsOfKinship siblingsPaths d) [1 .. maxDepth]
   sequence $ map (\siblingsOfKinship -> do
-                 siblings <- sequence $ map (\s -> getPersonById conn s) siblingsOfKinship
+                 siblings <- sequence $ map (\s -> getPersonById conn user s) siblingsOfKinship
                  return $ map fromJust $ filter isJust siblings
                  )
                  siblingsIds
@@ -162,7 +162,7 @@ findSiblings conn pId = do
     -- ]
     collectSameLevelSiblings :: Int -> Int -> [Int] -> IO [[Int]]
     collectSameLevelSiblings personId depth path = do
-      maybePersonDB <- S.selectPersonById conn personId
+      maybePersonDB <- S.selectPersonById conn user personId
       case maybePersonDB of
         Nothing -> return [path]
         Just personDB ->

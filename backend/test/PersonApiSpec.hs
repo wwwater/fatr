@@ -29,7 +29,7 @@ spec = beforeAll testConnect $
 
   describe "test GET /person/{id} endpoint" $
     after (\connection -> do
-          Sql.execute_ connection "DROP TABLE person"
+          Sql.execute_ connection "DROP TABLE irkutsk_person"
           Sql.execute_ connection "DROP TABLE user"
           ) $ do
 
@@ -79,7 +79,7 @@ spec = beforeAll testConnect $
 
   describe "test GET /person/{id}/tree endpoint" $
     after (\connection -> do
-          Sql.execute_ connection "DROP TABLE person"
+          Sql.execute_ connection "DROP TABLE irkutsk_person"
           Sql.execute_ connection "DROP TABLE user"
           ) $ do
 
@@ -135,7 +135,7 @@ spec = beforeAll testConnect $
 
   describe "test GET /person/search/{str} endpoint" $
     after (\connection -> do
-          Sql.execute_ connection "DROP TABLE person"
+          Sql.execute_ connection "DROP TABLE irkutsk_person"
           Sql.execute_ connection "DROP TABLE user"
           ) $ do
 
@@ -168,7 +168,7 @@ spec = beforeAll testConnect $
 
   describe "test GET /person/{id}/siblings endpoint" $
     after (\connection -> do
-          Sql.execute_ connection "DROP TABLE person"
+          Sql.execute_ connection "DROP TABLE irkutsk_person"
           Sql.execute_ connection "DROP TABLE user"
           ) $ do
 
@@ -212,18 +212,18 @@ spec = beforeAll testConnect $
 addTestPerson :: Sql.Connection -> IO ()
 addTestPerson connection = do
     Sql.execute_ connection
-      "INSERT INTO person (id, givenName, surname, parents, children, about) VALUES \
+      "INSERT INTO irkutsk_person (id, givenName, surname, parents, children, about) VALUES \
       \(1, 'Max', 'Planck', '{\"motherId\":2,\"fatherId\":3}', '[{\"spouseId\":4, \"childrenIds\":[5]}]', 'Great physicist')"
     Sql.execute_ connection
-      "INSERT INTO person (id, givenName, surname, parents, children) VALUES \
+      "INSERT INTO irkutsk_person (id, givenName, surname, parents, children) VALUES \
       \(3, 'Johann', 'Planck', '', '[{\"spouseId\":2, \"childrenIds\":[1,6]}]')"
     Sql.execute_ connection
-      "INSERT INTO person (id, givenName, surname, parents, children) VALUES \
+      "INSERT INTO irkutsk_person (id, givenName, surname, parents, children) VALUES \
       \(5, 'Erwinn', 'Planck', '{\"motherId\":4,\"fatherId\":1}', '[]')"
     Sql.execute_ connection
-      "INSERT INTO person (id, givenName, surname, parents, children) VALUES \
+      "INSERT INTO irkutsk_person (id, givenName, surname, parents, children) VALUES \
       \(6, 'BrotherOfMax', 'Planck', '', '[{\"spouseId\":null, \"childrenIds\":[7]}]')"
     Sql.execute_ connection
-      "INSERT INTO person (id, givenName, surname, parents, children) VALUES \
+      "INSERT INTO irkutsk_person (id, givenName, surname, parents, children) VALUES \
       \(7, 'CousinOfErwinn', 'Planck', '', '[]')"
 

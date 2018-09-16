@@ -46,19 +46,27 @@ personServer :: Connection -> Maybe M.JwtToken -> Server PersonAPI
 personServer conn jwt =
     getPersonWithAbout :<|> search :<|> getPersonTree :<|> getPersonSiblings
     where
-      getPersonWithAbout personId = withJwt jwt $ liftIOMaybeToHandler err404 $ L.getAboutPersonById conn personId
-      search searchString = withJwt jwt $ liftIO $ L.search conn searchString
-      getPersonTree personId = withJwt jwt $ liftIOMaybeToHandler err404 $ L.getPersonTree conn personId
-      getPersonSiblings personId = withJwt jwt $ liftIO $ L.findSiblings conn personId
+      getPersonWithAbout personId =
+        withJwt jwt (\user ->
+                    liftIOMaybeToHandler err404 $ L.getAboutPersonById conn user personId)
+      search searchString =
+        withJwt jwt (\user ->
+                    liftIO $ L.search conn user searchString)
+      getPersonTree personId =
+        withJwt jwt (\user ->
+                    liftIOMaybeToHandler err404 $ L.getPersonTree conn user personId)
+      getPersonSiblings personId =
+        withJwt jwt (\user ->
+                    liftIO $ L.findSiblings conn user personId)
 
-withJwt :: Maybe M.JwtToken -> Handler a -> Handler a
+withJwt :: Maybe M.JwtToken -> (String -> Handler a) -> Handler a
 withJwt jwt onValidJwt =
   case jwt of
     Just jwtToken -> do
-      valid <- liftIO $ L.verifyJwtToken jwtToken
-      if valid
-        then onValidJwt
-        else throwError err401 { errBody = "JWT token has expired or not valid." }
+      maybeUser <- liftIO $ L.getUserFromValidJwt jwtToken
+      case maybeUser of
+        Just user -> onValidJwt user
+        Nothing -> throwError err401 { errBody = "JWT token has expired or not valid." }
     Nothing -> throwError err401 { errBody = "Please provide JWT token in header." }
 
 
