@@ -77,8 +77,8 @@ drawPhoto person =
       img [ src photo
           , alt "[Фотография]"
           , style [ ("max-width", "40%")
-          , ("max-height", "33vh")
-          ]
+                  , ("max-height", "50vh")
+                  ]
           ] []
 
 drawPersonInfo : Person -> Html Msg
