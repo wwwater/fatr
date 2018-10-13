@@ -60,7 +60,7 @@ update action model cameFromLogin =
                     let _ = Debug.log "Error getting jwt" err in
                     ( { model |
                           credentials = { username = "", password = "" }
-                        , error = Just "Наверное, это были неправильныe город и река (ᵔᴥᵔ)" }
+                        , error = Just "Наверное, это был неправильный город или пароль (ᵔᴥᵔ)" }
                     , Cmd.none
                     , Global.RemoveJwt
                     )
@@ -119,7 +119,7 @@ view model =
                 , formStyle
                 , type_ "text"
                 , value model.credentials.username
-                , placeholder "Город (латинскими буквами)"
+                , placeholder "Секретный город"
                 , maxlength 100
                 , autofocus True
                 , onInput ChangeUser ] []
@@ -132,7 +132,7 @@ view model =
                 , formStyle
                 , type_ "password"
                 , value model.credentials.password
-                , placeholder "Река (латинскими буквами)"
+                , placeholder "Пароль"
                 , maxlength 100
                 , onKeyUp (\k ->
                     case k of
