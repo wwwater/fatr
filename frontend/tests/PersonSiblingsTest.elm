@@ -36,5 +36,5 @@ testModel : PersonSiblings.Model
 testModel =
   PersonSiblings.Model
     [[testPerson], [], [testPerson, testPerson], []]
-    PersonInfoDialog.init
+    (PersonInfoDialog.init "2019-03-29")
     Nothing

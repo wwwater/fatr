@@ -37,7 +37,7 @@ all =
             , test "dialog has no img tag if no photo" <|
                 \() ->
                     PersonInfoDialog.view
-                      (PersonInfoDialog.Model (Just testPersonWithAll) True Nothing)
+                      (PersonInfoDialog.Model (Just testPersonWithAll) True "" Nothing)
                     |> Query.fromHtml
                     |> Query.findAll [ tag "img" ]
                     |> Query.count (Expect.equal 0)
@@ -51,4 +51,4 @@ all =
         ]
 
 testModel : Bool -> PersonInfoDialog.Model
-testModel show  = PersonInfoDialog.Model (Just testPerson) show Nothing
+testModel show  = PersonInfoDialog.Model (Just testPerson) show "2019-03-29" Nothing

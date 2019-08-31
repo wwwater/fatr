@@ -4,8 +4,10 @@ require("./index.html");
 var Elm = require("./Main");
 
 var storageKey = "token";
+var now = new Date();
+var date = now.toISOString().substring(0, 10);
 
-var elm = Elm.Main.fullscreen({jwt: localStorage.getItem(storageKey) || ""});
+var elm = Elm.Main.fullscreen({jwt: localStorage.getItem(storageKey) || "", initDate: date});
 
 // var pairsToConnect;
 

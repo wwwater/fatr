@@ -19,7 +19,10 @@ port drawConnections : List (Int, Int) -> Cmd msg
 
 
 
-type alias Flags = { jwt : String }
+type alias Flags = {
+    jwt : String
+  , initDate : String
+  }
 
 main : Program Flags Model Msg
 main =
@@ -39,6 +42,7 @@ type alias Model =
     , menuModel : Menu.Model
     , route : Routes.Route
     , previousRoute : Maybe Routes.Route
+    , initDate : String
     }
 
 
@@ -55,11 +59,12 @@ initialModel : Flags -> Model
 initialModel flags =
     { route = LoginPage
     , previousRoute = Nothing
-    , personTreeModel = PersonTree.init
-    , personSiblingsModel = PersonSiblings.init
+    , personTreeModel = PersonTree.init flags.initDate
+    , personSiblingsModel = PersonSiblings.init flags.initDate
     , menuModel = Menu.init
     , loginModel = Login.init
     , jwt = if flags.jwt /= "" then Just flags.jwt else Nothing
+    , initDate = flags.initDate
     }
 
 
@@ -128,7 +133,7 @@ urlUpdate loc model =
                 Just jwt ->
                     { model | previousRoute = previousRoute
                             , route = route
-                            , personTreeModel = PersonTree.init }
+                            , personTreeModel = PersonTree.init model.initDate}
                         ! [ Cmd.map PersonTreeMsg <| PersonTree.mountCmd personId jwt ]
                 Nothing -> ( model, Cmd.none )
 
@@ -137,7 +142,7 @@ urlUpdate loc model =
                 Just jwt ->
                     { model | previousRoute = previousRoute
                             , route = route
-                            , personSiblingsModel = PersonSiblings.init }
+                            , personSiblingsModel = PersonSiblings.init model.initDate}
                         ! [ Cmd.map PersonSiblingsMsg <| PersonSiblings.mountCmd personId jwt ]
                 Nothing -> ( model, Cmd.none )
 

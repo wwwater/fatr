@@ -9,7 +9,7 @@ testPerson = Person
     (Just "Planck")
     (Nothing)
     (Just "1858-04-23")
-    (Just "1947-10-4")
+    (Just "1947-10-04")
     (Parents { mother = Nothing, father = Nothing })
     []
     (Just "/assets/photo/max.png")
@@ -42,7 +42,7 @@ testPersonWithAll = Person
     (Just "Planck")
     Nothing
     (Just "1858-04-23")
-    (Just "1947-10-4")
+    (Just "1947-10-04")
     testParents
     [testChildren]
     Nothing

@@ -22,6 +22,7 @@ import Routes           exposing (..)
 type alias Model =
     { person : Maybe Person
     , show : Bool
+    , date : String
     , error : Maybe String
     }
 
@@ -33,8 +34,8 @@ type Msg
     | GoToPersonSiblings Int
 
 
-init : Model
-init = Model Nothing False Nothing
+init : String -> Model
+init initDate = Model Nothing False initDate Nothing
 
 mountCmd : Int -> Jwt -> Cmd Msg
 mountCmd personId jwt =
@@ -81,8 +82,8 @@ drawPhoto person =
                   ]
           ] []
 
-drawPersonInfo : Person -> Html Msg
-drawPersonInfo person =
+drawPersonInfo : Person -> String -> Html Msg
+drawPersonInfo person today =
   div [ style [ ("display", "flex")
               , ("flex-direction", "row")
               , ("align-items", "flex-start")
@@ -98,7 +99,7 @@ drawPersonInfo person =
                     , ("max-height", "50vh")
                     ] ]
             [ div [ style [ ("margin-bottom", "10px") ] ]
-                  [ text <| formatDates person ]
+                  [ formatDatesWithAge person today ]
             , div []
                   [ text <| Maybe.withDefault "" person.about ]
             ]
@@ -119,12 +120,12 @@ drawButtons person =
                [ text "Найти братьев и сестер" ]
       ]
 
-dialogConfig : Person -> Dialog.Config Msg
-dialogConfig person =
+dialogConfig : Person -> String -> Dialog.Config Msg
+dialogConfig person today =
     { closeMessage = Just Close
     , containerClass = Nothing
     , header = Just <| drawPersonName person
-    , body = Just <| drawPersonInfo person
+    , body = Just <| drawPersonInfo person today
     , footer = Just <| drawButtons person
     }
 
@@ -132,6 +133,6 @@ view : Model -> Html Msg
 view model =
   if model.show
     then case model.person of
-      Just person -> Dialog.view (Just <| dialogConfig person)
+      Just person -> Dialog.view (Just <| dialogConfig person model.date)
       Nothing -> div [] []
     else div [] []

@@ -39,4 +39,9 @@ all =
         ]
 
 testModel : Maybe Person -> PersonTree.Model
-testModel maybePerson  = PersonTree.Model maybePerson [] PersonInfoDialog.init Nothing
+testModel maybePerson =
+  PersonTree.Model
+    maybePerson
+    []
+    (PersonInfoDialog.init "2019-03-29")
+    Nothing

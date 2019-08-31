@@ -34,9 +34,9 @@ type Msg
   | ShowPersonInfo Int
 
 
-init : Model
-init =
-  Model [] PersonInfoDialog.init Nothing
+init : String -> Model
+init initDate =
+  Model [] (PersonInfoDialog.init initDate) Nothing
 
 
 mountCmd : Int -> Jwt -> Cmd Msg
